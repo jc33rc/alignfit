@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlignFit — AI Form Coach</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --green: #00FF41;
+    --green-dim: #00C853;
+    --green-dark: #004D1A;
+    --green-glow: rgba(0,255,65,0.25);
+    --black: #000000;
+    --black-soft: #0A0A0A;
+    --black-card: #111111;
+    --white: #FFFFFF;
+    --red: #FF3B3B;
+    --yellow: #FFD600;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--sans);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; width: 100%; height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ── HOME SCREEN ── */
+  #screen-home {
+    background: var(--black-soft);
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .binary-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(0,255,65,0.06);
+    line-height: 1.4;
+    word-break: break-all;
+    padding: 8px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .home-top { text-align: center; z-index: 1; }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-shadow: 0 0 20px var(--green), 0 0 40px rgba(0,255,65,0.3);
+    margin-bottom: 4px;
+  }
+
+  .logo span { color: var(--white); }
+
+  .tagline {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  /* Daily Challenge Card */
+  .challenge-card {
+    background: var(--black-card);
+    border: 1px solid rgba(0,255,65,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .challenge-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    animation: scanline 3s infinite;
+  }
+
+  @keyframes scanline {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .challenge-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .challenge-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .challenge-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .challenge-reward {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green-dim);
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: var(--black-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Movements Grid */
+  .movements-section { width: 100%; z-index: 1; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .movements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .movement-btn {
+    background: var(--black-card);
+    border: 1px solid rgba(0,255,65,0.15);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .movement-btn:active {
+    transform: scale(0.96);
+    border-color: var(--green);
+    background: rgba(0,255,65,0.08);
+  }
+
+  .movement-icon { font-size: 24px; margin-bottom: 4px; }
+
+  .movement-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.2;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0 8px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    width: 100%;
+    z-index: 1;
+  }
+
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    font-family: var(--sans);
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+
+  .nav-btn.active { color: var(--green); }
+  .nav-btn svg { width: 22px; height: 22px; }
+
+  /* ── TUTORIAL SCREEN ── */
+  #screen-tutorial {
+    position: relative;
+    background: var(--black);
+  }
+
+  /* ── WORKOUT SCREEN ── */
+  #screen-workout {
+    position: relative;
+    background: var(--black);
+  }
+
+  /* Shared camera view */
+  .camera-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    background: #050505;
+  }
+
+  #video, #video-tutorial {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+
+  #canvas-workout, #canvas-tutorial {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform: scaleX(-1);
+  }
+
+  /* Tutorial overlay text */
+  .tutorial-guide {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.92) 40%);
+    padding: 40px 24px 24px;
+    z-index: 10;
+  }
+
+  .tutorial-step {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--green);
+    line-height: 2;
+    text-shadow: 0 0 10px rgba(0,255,65,0.5);
+  }
+
+  .tutorial-step span {
+    display: block;
+    animation: fadeInUp 0.4s ease both;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tutorial-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  /* Top bar shared */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    background: linear-gradient(rgba(0,0,0,0.8), transparent);
+  }
+
+  .top-bar-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .back-btn {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+  }
+
+  /* ── WORKOUT HUD ── */
+  .workout-hud {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Timer ring */
+  .timer-display {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .timer-ring {
+    width: 90px; height: 90px;
+    position: relative;
+  }
+
+  .timer-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .timer-ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 4; }
+  .timer-ring-progress {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+    filter: drop-shadow(0 0 6px var(--green));
+  }
+
+  .timer-number {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* Rep counter */
+  .rep-counter {
+    position: absolute;
+    top: 72px;
+    right: 20px;
+    text-align: center;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(0,255,65,0.3);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+
+  .rep-number {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+    text-shadow: 0 0 12px var(--green);
+  }
+
+  .rep-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Calories */
+  .cal-display {
+    position: absolute;
+    top: 72px;
+    left: 20px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .cal-number {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: #FF6B00;
+  }
+
+  .cal-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Form tip */
+  .form-tip {
+    position: absolute;
+    bottom: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,59,59,0.15);
+    border: 1px solid rgba(255,59,59,0.4);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #FF6B6B;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .form-tip.visible { opacity: 1; }
+
+  /* Streak badge */
+  .streak-badge {
+    position: absolute;
+    bottom: 180px;
+    right: 20px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .streak-badge.visible { opacity: 1; }
+
+  /* Bottom workout controls */
+  .workout-controls {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.95) 40%);
+    padding: 40px 24px 32px;
+    z-index: 15;
+    pointer-events: all;
+  }
+
+  .exercise-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 16px;
+    text-shadow: 0 0 8px var(--green);
+  }
+
+  /* Time selector */
+  .time-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .time-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .time-btn.active, .time-btn:active {
+    background: rgba(0,255,65,0.15);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* Main CTA */
+  .btn-primary {
+    width: 100%;
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(0,255,65,0.3);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 30px rgba(0,255,65,0.5);
+  }
+
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ── BUBBLE (GLOBITO) ── */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid var(--green);
+    background: rgba(0,255,65,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--green);
+    pointer-events: none;
+    transition: transform 0.1s;
+    animation: bubblePulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(0,255,65,0.3), inset 0 0 12px rgba(0,255,65,0.1);
+    z-index: 12;
+  }
+
+  @keyframes bubblePulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(0,255,65,0.3); }
+    50% { transform: scale(1.06); box-shadow: 0 0 24px rgba(0,255,65,0.5); }
+  }
+
+  /* Particle explosion */
+  .particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--green);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* Rep flash */
+  .rep-flash {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+    text-shadow: 0 0 20px var(--green);
+    pointer-events: none;
+    z-index: 25;
+    animation: repFlash 0.8s ease both;
+  }
+
+  @keyframes repFlash {
+    0% { opacity: 1; transform: scale(0.5) translateY(0); }
+    60% { opacity: 1; transform: scale(1.2) translateY(-20px); }
+    100% { opacity: 0; transform: scale(1) translateY(-40px); }
+  }
+
+  /* Screen flash */
+  .screen-flash {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,255,65,0.12);
+    pointer-events: none;
+    z-index: 30;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  .screen-flash.active { opacity: 1; }
+
+  /* ── RESULTS SCREEN ── */
+  #screen-results {
+    background: var(--black-soft);
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .results-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .results-headline {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 32px;
+  }
+
+  .result-card {
+    background: var(--black-card);
+    border: 1px solid rgba(0,255,65,0.15);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .result-value {
+    font-family: var(--mono);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green);
+    text-shadow: 0 0 16px rgba(0,255,65,0.4);
+  }
+
+  .result-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .result-card.full {
+    grid-column: 1 / -1;
+  }
+
+  /* compile animation */
+  .compile-lines {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(0,255,65,0.6);
+    text-align: left;
+    width: 100%;
+    margin-bottom: 24px;
+    line-height: 1.8;
+  }
+
+  .compile-line {
+    opacity: 0;
+    animation: compileLine 0.3s ease both;
+  }
+
+  @keyframes compileLine {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── MOVEMENT SELECT SCREEN ── */
+  #screen-select {
+    background: var(--black-soft);
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .select-header {
+    padding: 60px 24px 20px;
+    background: linear-gradient(var(--black), var(--black-soft));
+  }
+
+  .select-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .select-headline {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .movement-list {
+    padding: 16px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .movement-item {
+    background: var(--black-card);
+    border: 1px solid rgba(0,255,65,0.12);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .movement-item:active {
+    border-color: var(--green);
+    background: rgba(0,255,65,0.06);
+    transform: scale(0.99);
+  }
+
+  .movement-item-icon {
+    font-size: 32px;
+    width: 48px;
+    text-align: center;
+  }
+
+  .movement-item-info { flex: 1; }
+
+  .movement-item-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .movement-item-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    font-family: var(--mono);
+  }
+
+  .movement-item-arrow {
+    color: var(--green);
+    font-size: 18px;
+    opacity: 0.6;
+  }
+
+  /* scanning line on movement items */
+  .movement-item::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--green);
+    opacity: 0;
+    transition: opacity 0.2s;
+    box-shadow: 0 0 8px var(--green);
+  }
+  .movement-item:active::after { opacity: 1; }
+
+  /* Pose skeleton overlay */
+  .keypoint-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Status indicator */
+  .status-bar {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    border: 1px solid rgba(0,255,65,0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    z-index: 15;
+  }
+
+  /* loading */
+  .loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    gap: 16px;
+  }
+
+  .loading-text {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 2px;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .loading-spinner {
+    width: 40px; height: 40px;
+    border: 2px solid rgba(0,255,65,0.2);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Matrix rain effect on results */
+  .matrix-rain {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .rain-col {
+    position: absolute;
+    top: -100%;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    opacity: 0.15;
+    animation: rainFall linear infinite;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  @keyframes rainFall {
+    0% { top: -100%; opacity: 0.15; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Routine screen */
+  #screen-routines {
+    background: var(--black-soft);
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  .routines-header {
+    padding: 60px 24px 20px;
+  }
+
+  .routine-card {
+    margin: 0 24px 12px;
+    background: var(--black-card);
+    border: 1px solid rgba(0,255,65,0.1);
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .routine-card:active {
+    border-color: var(--green);
+    transform: scale(0.99);
+  }
+
+  .routine-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .routine-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+
+  .routine-exercises {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .routine-tag {
+    background: rgba(0,255,65,0.08);
+    border: 1px solid rgba(0,255,65,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: var(--green-dim);
+    font-family: var(--mono);
+  }
+
+  /* phone position hint */
+  .phone-hint {
+    background: rgba(0,255,65,0.06);
+    border: 1px solid rgba(0,255,65,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(0,255,65,0.7);
+    margin: 0 24px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Badges screen */
+  #screen-badges {
+    background: var(--black-soft);
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  .badges-header {
+    padding: 60px 24px 20px;
+  }
+
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 0 24px;
+  }
+
+  .badge-item {
+    background: var(--black-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    position: relative;
+  }
+
+  .badge-item.earned {
+    border-color: rgba(0,255,65,0.3);
+    background: rgba(0,255,65,0.05);
+  }
+
+  .badge-emoji { font-size: 24px; margin-bottom: 4px; }
+
+  .badge-name {
+    font-size: 8px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.2;
+  }
+
+  .badge-item.earned .badge-name { color: rgba(255,255,255,0.7); }
+
+  .badge-locked {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .badge-item.earned .badge-locked { display: none; }
+
+  /* Workout active state UI */
+  #running-controls {
+    display: none;
+  }
+
+  #start-controls {
+    display: block;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- HOME SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="binary-bg" id="binaryBg"></div>
+
+  <div class="home-top">
+    <div class="logo">Align<span>Fit</span></div>
+    <div class="tagline">AI Form Coach</div>
+  </div>
+
+  <!-- Daily Challenge -->
+  <div class="challenge-card">
+    <div class="challenge-label">⚡ Daily Challenge</div>
+    <div class="challenge-title">El Minuto de Fuego</div>
+    <div class="challenge-desc">60 segundos de sentadillas. Meta: 20 globitos explotados.</div>
+    <div class="challenge-reward">🏆 Insignia especial + 50pts</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="home-reps">0</div>
+      <div class="stat-label">Reps hoy</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="home-kcal">0</div>
+      <div class="stat-label">kcal</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="home-streak">0</div>
+      <div class="stat-label">Racha 🔥</div>
+    </div>
+  </div>
+
+  <!-- Movements -->
+  <div class="movements-section">
+    <div class="section-label">Movimientos</div>
+    <div class="movements-grid">
+      <div class="movement-btn" onclick="selectMovement('squat')">
+        <div class="movement-icon">🦵</div>
+        <div class="movement-name">Sentadilla</div>
+      </div>
+      <div class="movement-btn" onclick="selectMovement('pushup')">
+        <div class="movement-icon">💪</div>
+        <div class="movement-name">Push-up</div>
+      </div>
+      <div class="movement-btn" onclick="selectMovement('lunge')">
+        <div class="movement-icon">🏃</div>
+        <div class="movement-name">Estocada</div>
+      </div>
+      <div class="movement-btn" onclick="selectMovement('plank')">
+        <div class="movement-icon">🧘</div>
+        <div class="movement-name">Plancha</div>
+      </div>
+      <div class="movement-btn" onclick="selectMovement('deadlift')">
+        <div class="movement-icon">⚡</div>
+        <div class="movement-name">Peso Muerto</div>
+      </div>
+      <div class="movement-btn" onclick="selectMovement('sumo')">
+        <div class="movement-icon">🥋</div>
+        <div class="movement-name">Sumo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="showScreen('home')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Inicio
+    </button>
+    <button class="nav-btn" onclick="showScreen('routines')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      Rutinas
+    </button>
+    <button class="nav-btn" onclick="showScreen('badges')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      Insignias
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MOVEMENT SELECT SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-select" class="screen">
+  <div class="select-header">
+    <button class="back-btn" style="position:static;margin-bottom:16px;" onclick="showScreen('home')">←</button>
+    <div class="select-title">Seleccionar</div>
+    <div class="select-headline" id="select-headline">Sentadilla</div>
+  </div>
+  <div class="movement-list">
+    <div class="movement-item" onclick="startTutorial()">
+      <div class="movement-item-icon">📖</div>
+      <div class="movement-item-info">
+        <div class="movement-item-name">Tutorial</div>
+        <div class="movement-item-desc">Aprende la técnica correcta</div>
+      </div>
+      <div class="movement-item-arrow">›</div>
+    </div>
+    <div class="movement-item" onclick="startWorkout()">
+      <div class="movement-item-icon">⚡</div>
+      <div class="movement-item-info">
+        <div class="movement-item-name">Entrenar</div>
+        <div class="movement-item-desc">Modo libre con timer</div>
+      </div>
+      <div class="movement-item-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TUTORIAL SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-tutorial" class="screen">
+  <div class="camera-container">
+    <video id="video-tutorial" autoplay muted playsinline></video>
+    <canvas id="canvas-tutorial"></canvas>
+
+    <div class="loading-overlay" id="tutorial-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">INICIANDO CÁMARA...</div>
+    </div>
+
+    <div class="top-bar">
+      <button class="back-btn" onclick="stopCamera('tutorial')">←</button>
+      <div class="top-bar-title" id="tutorial-title">SENTADILLA</div>
+      <div style="width:36px"></div>
+    </div>
+
+    <div class="status-bar" id="tutorial-status">📡 DETECTANDO POSE...</div>
+
+    <!-- Tutorial guide overlay -->
+    <div class="tutorial-guide">
+      <div class="tutorial-step" id="tutorial-text">
+        <span>Pies al ancho de los hombros</span>
+        <span>Baja hasta explotar el globito</span>
+        <span>Rodillas hacia afuera</span>
+      </div>
+      <div class="tutorial-actions">
+        <button class="btn-primary" onclick="startWorkout()" style="flex:2">
+          ENTRENAR AHORA
+        </button>
+        <button class="btn-secondary" style="flex:1;margin:0;" onclick="stopCamera('tutorial')">
+          VOLVER
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- WORKOUT SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-workout" class="screen">
+  <div class="camera-container">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas-workout"></canvas>
+
+    <div class="loading-overlay" id="workout-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">CARGANDO IA...</div>
+    </div>
+
+    <div class="screen-flash" id="screenFlash"></div>
+
+    <div class="top-bar">
+      <button class="back-btn" onclick="stopCamera('workout')">←</button>
+      <div class="top-bar-title" id="workout-title">SENTADILLA</div>
+      <div style="width:36px"></div>
+    </div>
+
+    <div class="status-bar" id="workout-status">📡 DETECTANDO POSE...</div>
+
+    <!-- HUD -->
+    <div class="workout-hud">
+      <!-- Timer -->
+      <div class="timer-display" id="timerDisplay">
+        <div class="timer-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="timer-ring-bg" cx="45" cy="45" r="40"/>
+            <circle class="timer-ring-progress" id="timerRing" cx="45" cy="45" r="40"/>
+          </svg>
+          <div class="timer-number" id="timerNumber">60</div>
+        </div>
+      </div>
+
+      <!-- Reps -->
+      <div class="rep-counter">
+        <div class="rep-number" id="repCount">0</div>
+        <div class="rep-label">REPS</div>
+      </div>
+
+      <!-- Calories -->
+      <div class="cal-display">
+        <div class="cal-number" id="calCount">0</div>
+        <div class="cal-label">KCAL 🔥</div>
+      </div>
+
+      <!-- Form tip -->
+      <div class="form-tip" id="formTip">Rodillas hacia afuera</div>
+
+      <!-- Streak -->
+      <div class="streak-badge" id="streakBadge">🔥 x5</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="workout-controls">
+      <div class="exercise-name" id="workout-exercise-name">SENTADILLA</div>
+
+      <!-- Start state -->
+      <div id="start-controls">
+        <div class="time-selector">
+          <button class="time-btn active" onclick="selectTime(30, this)">30s</button>
+          <button class="time-btn" onclick="selectTime(60, this)">1 min</button>
+          <button class="time-btn" onclick="selectTime(120, this)">2 min</button>
+          <button class="time-btn" onclick="selectTime(180, this)">3 min</button>
+        </div>
+        <button class="btn-primary" id="startBtn" onclick="beginSession()">
+          INICIAR
+        </button>
+      </div>
+
+      <!-- Running state -->
+      <div id="running-controls" style="display:none;">
+        <button class="btn-secondary" onclick="endSession()">TERMINAR SESIÓN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- RESULTS SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="matrix-rain" id="matrixRain"></div>
+
+  <div style="z-index:1;width:100%;text-align:center;">
+    <div class="compile-lines" id="compileLines"></div>
+    <div class="results-title">Sesión Completada</div>
+    <div class="results-headline" id="results-headline">¡Bien hecho! 💚</div>
+
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-value" id="result-reps">0</div>
+        <div class="result-label">Reps</div>
+      </div>
+      <div class="result-card">
+        <div class="result-value" id="result-kcal">0</div>
+        <div class="result-label">kcal 🔥</div>
+      </div>
+      <div class="result-card full">
+        <div class="result-value" id="result-time">0s</div>
+        <div class="result-label">Tiempo activo</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="showScreen('home')" style="margin-bottom:12px;">
+      VOLVER AL INICIO
+    </button>
+    <button class="btn-secondary" onclick="startWorkout()">
+      OTRA RONDA
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- ROUTINES SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-routines" class="screen">
+  <div class="routines-header">
+    <button class="back-btn" style="position:static;margin-bottom:16px;" onclick="showScreen('home')">←</button>
+    <div class="select-title">Entrenar</div>
+    <div class="select-headline">Rutinas</div>
+  </div>
+
+  <div class="phone-hint">
+    📱 Coloca el teléfono en el suelo, horizontal, a 1.5m de distancia
+  </div>
+
+  <div class="routine-card" onclick="selectMovement('squat')">
+    <div class="routine-name">Sin Mover el Teléfono</div>
+    <div class="routine-meta">10 min · Nivel principiante · 0 cambios</div>
+    <div class="routine-exercises">
+      <span class="routine-tag">Sentadilla 1min</span>
+      <span class="routine-tag">Sumo 1min</span>
+      <span class="routine-tag">Estocada 1min</span>
+      <span class="routine-tag">Plancha 1min</span>
+    </div>
+  </div>
+
+  <div class="routine-card" onclick="selectMovement('squat')">
+    <div class="routine-name">Lower Body</div>
+    <div class="routine-meta">12 min · Nivel intermedio · 0 cambios</div>
+    <div class="routine-exercises">
+      <span class="routine-tag">Sentadilla 1.5min</span>
+      <span class="routine-tag">Sumo 1.5min</span>
+      <span class="routine-tag">Estocada der 1min</span>
+      <span class="routine-tag">Estocada izq 1min</span>
+    </div>
+  </div>
+
+  <div class="routine-card" onclick="selectMovement('pushup')">
+    <div class="routine-name">Core y Empuje</div>
+    <div class="routine-meta">10 min · Nivel intermedio · 0 cambios</div>
+    <div class="routine-exercises">
+      <span class="routine-tag">Push-up 1min</span>
+      <span class="routine-tag">Peso muerto 1min</span>
+      <span class="routine-tag">Push-up 1min</span>
+    </div>
+  </div>
+
+  <div class="routine-card" onclick="selectMovement('squat')">
+    <div class="routine-name">Express 5 Min</div>
+    <div class="routine-meta">5 min · Cualquier nivel · 0 cambios</div>
+    <div class="routine-exercises">
+      <span class="routine-tag">Sentadilla 1min</span>
+      <span class="routine-tag">Push-up 1min</span>
+      <span class="routine-tag">Plancha 1min</span>
+    </div>
+  </div>
+
+  <div class="routine-card" onclick="selectMovement('squat')">
+    <div class="routine-name">Full Body</div>
+    <div class="routine-meta">15 min · Nivel avanzado · 0 cambios</div>
+    <div class="routine-exercises">
+      <span class="routine-tag">Sentadilla 1min</span>
+      <span class="routine-tag">Push-up 1min</span>
+      <span class="routine-tag">Estocada 1min</span>
+      <span class="routine-tag">Peso muerto 1min</span>
+      <span class="routine-tag">Sumo 1min</span>
+      <span class="routine-tag">Plancha 1min</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- BADGES SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="screen-badges" class="screen">
+  <div class="badges-header">
+    <button class="back-btn" style="position:static;margin-bottom:16px;" onclick="showScreen('home')">←</button>
+    <div class="select-title">Colección</div>
+    <div class="select-headline">Insignias</div>
+  </div>
+  <div class="badges-grid" id="badgesGrid"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const state = {
+  currentMovement: 'squat',
+  selectedTime: 30,
+  sessionActive: false,
+  reps: 0,
+  streak: 0,
+  calories: 0,
+  totalRepsToday: 0,
+  totalKcalToday: 0,
+  daysStreak: 1,
+  sessionStartTime: null,
+  timerInterval: null,
+  timeLeft: 30,
+  detector: null,
+  animFrame: null,
+  cameraStream: null,
+  // Head tracking
+  headY: null,
+  headYBaseline: null,
+  inRep: false,
+  lastRepTime: 0,
+  bubbleY: null,
+  bubbleX: null,
+  bubbleActive: false,
+  earnedBadges: ['first_rep', 'first_session'],
+};
+
+const MOVEMENTS = {
+  squat:    { name: 'Sentadilla',    nameUpper: 'SENTADILLA',    icon: '🦵', met: 5.0,
+              tutorial: ['Pies al ancho de los hombros', 'Baja hasta explotar el globito', 'Rodillas hacia afuera'],
+              threshold: 0.18, tipMsg: 'Rodillas hacia afuera' },
+  pushup:   { name: 'Push-up',       nameUpper: 'PUSH-UP',       icon: '💪', met: 3.8,
+              tutorial: ['Manos al ancho de los hombros', 'Baja el pecho hasta el globito', 'Cuerpo recto de cabeza a talones'],
+              threshold: 0.14, tipMsg: 'Cuerpo recto' },
+  lunge:    { name: 'Estocada',      nameUpper: 'ESTOCADA',      icon: '🏃', met: 4.5,
+              tutorial: ['Un paso adelante', 'Baja hasta explotar el globito', 'Alterna cada pierna'],
+              threshold: 0.16, tipMsg: 'Rodilla no pase el pie' },
+  plank:    { name: 'Plancha',       nameUpper: 'PLANCHA',       icon: '🧘', met: 4.0,
+              tutorial: ['Antebrazos en el suelo', 'Cuerpo recto, abdomen activo', 'Mantén el tiempo'],
+              threshold: 0, tipMsg: 'Caderas alineadas' },
+  deadlift: { name: 'Peso Muerto',   nameUpper: 'PESO MUERTO',   icon: '⚡', met: 5.5,
+              tutorial: ['Pies al ancho de caderas', 'Empuja las caderas hacia atrás', 'Baja hasta explotar el globito'],
+              threshold: 0.22, tipMsg: 'Espalda recta' },
+  sumo:     { name: 'Sumo',          nameUpper: 'SUMO',          icon: '🥋', met: 5.0,
+              tutorial: ['Pies más anchos, puntas afuera', 'Baja hasta explotar el globito', 'Rodillas hacia afuera'],
+              threshold: 0.18, tipMsg: 'Rodillas hacia afuera' },
+};
+
+const BADGES = [
+  { id: 'first_rep',     emoji: '🟢', name: 'Primer Globito' },
+  { id: 'first_session', emoji: '🟢', name: 'Primera Sesión' },
+  { id: 'first_routine', emoji: '🟢', name: 'Primera Rutina' },
+  { id: 'first_flame',   emoji: '🔥', name: 'Primera Llama' },
+  { id: 'first_record',  emoji: '🟢', name: 'Primer Récord' },
+  { id: 'first_streak',  emoji: '🟢', name: 'Primera Racha' },
+  { id: 'first_week',    emoji: '📅', name: 'Primera Semana' },
+  { id: 'bubbles_100',   emoji: '💚', name: '100 Globitos' },
+  { id: 'bubbles_500',   emoji: '💚', name: '500 Globitos' },
+  { id: 'bubbles_1k',    emoji: '💚', name: '1K Globitos' },
+  { id: 'bubbles_5k',    emoji: '💚', name: '5K Globitos' },
+  { id: 'bubbles_10k',   emoji: '💚', name: '10K Globitos' },
+  { id: 'gold_bubble',   emoji: '⭐', name: 'Globito Dorado' },
+  { id: 'matrix',        emoji: '💻', name: 'Matrix Burst' },
+  { id: 'time_5',        emoji: '⏱️', name: '5 Minutos' },
+  { id: 'time_30',       emoji: '⏱️', name: '30 Min Total' },
+  { id: 'time_1h',       emoji: '⏱️', name: '1 Hora Total' },
+  { id: 'time_5h',       emoji: '⏱️', name: '5 Horas Total' },
+  { id: 'time_10h',      emoji: '⏱️', name: '10 Horas Total' },
+  { id: 'long_session',  emoji: '⏱️', name: 'Sesión Larga' },
+  { id: 'marathon',      emoji: '⏱️', name: 'Maratón' },
+  { id: 'kcal_100',      emoji: '🔥', name: 'Primera Llama' },
+  { id: 'kcal_300',      emoji: '🔥', name: 'En Llamas' },
+  { id: 'kcal_500',      emoji: '🔥', name: 'Incendio' },
+  { id: 'kcal_1k',       emoji: '🔥', name: '1K Quemadas' },
+  { id: 'kcal_5k',       emoji: '🔥', name: '5K Quemadas' },
+  { id: 'kcal_10k',      emoji: '🔥', name: '10K Quemadas' },
+  { id: 'kcal_perfect',  emoji: '🔥', name: 'Quema Perfecta' },
+  { id: 'streak_3',      emoji: '📅', name: '3 Días Seguidos' },
+  { id: 'streak_7',      emoji: '📅', name: 'Semana Perfecta' },
+  { id: 'streak_14',     emoji: '📅', name: 'Dos Semanas' },
+  { id: 'streak_30',     emoji: '📅', name: 'Mes Completo' },
+  { id: 'streak_60',     emoji: '📅', name: 'Bimestre Élite' },
+  { id: 'streak_90',     emoji: '📅', name: 'Trimestre' },
+  { id: 'streak_365',    emoji: '📅', name: 'AF Legend' },
+  { id: 'squat_pro',     emoji: '🏋️', name: 'Sentadilla Pro' },
+  { id: 'pushup_pro',    emoji: '🏋️', name: 'Push-up Pro' },
+  { id: 'lunge_pro',     emoji: '🏋️', name: 'Estocada Pro' },
+  { id: 'plank_pro',     emoji: '🏋️', name: 'Plancha Pro' },
+  { id: 'deadlift_pro',  emoji: '🏋️', name: 'Peso Muerto Pro'},
+  { id: 'sumo_pro',      emoji: '🏋️', name: 'Sumo Pro' },
+  { id: 'master',        emoji: '⭐', name: 'Maestro Total' },
+];
+
+// ══════════════════════════════════════════════
+// BINARY BG
+// ══════════════════════════════════════════════
+function generateBinaryBg() {
+  let txt = '';
+  for (let i = 0; i < 600; i++) txt += Math.round(Math.random());
+  document.getElementById('binaryBg').textContent = txt;
+}
+generateBinaryBg();
+
+// ══════════════════════════════════════════════
+// SCREEN NAV
+// ══════════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (name === 'home') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  if (name === 'routines') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+  if (name === 'badges') {
+    document.querySelectorAll('.nav-btn')[2].classList.add('active');
+    renderBadges();
+  }
+}
+
+function selectMovement(mv) {
+  state.currentMovement = mv;
+  const m = MOVEMENTS[mv];
+  document.getElementById('select-headline').textContent = m.name;
+  showScreen('select');
+}
+
+// ══════════════════════════════════════════════
+// BADGES RENDER
+// ══════════════════════════════════════════════
+function renderBadges() {
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = BADGES.map(b => {
+    const earned = state.earnedBadges.includes(b.id);
+    return `<div class="badge-item ${earned ? 'earned' : ''}">
+      <div class="badge-emoji">${b.emoji}</div>
+      <div class="badge-name">${b.name}</div>
+      ${!earned ? '<div class="badge-locked">🔒</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// TIME SELECTOR
+// ══════════════════════════════════════════════
+function selectTime(t, btn) {
+  state.selectedTime = t;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// CAMERA
+// ══════════════════════════════════════════════
+async function startCamera(mode) {
+  const videoEl = mode === 'workout' ? document.getElementById('video') : document.getElementById('video-tutorial');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    state.cameraStream = stream;
+    videoEl.srcObject = stream;
+    await new Promise(r => videoEl.onloadedmetadata = r);
+    videoEl.play();
+    return true;
+  } catch(e) {
+    console.log('Camera error:', e);
+    return false;
+  }
+}
+
+function stopCamera(mode) {
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+  if (state.animFrame) { cancelAnimationFrame(state.animFrame); state.animFrame = null; }
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  state.sessionActive = false;
+  state.detector = null;
+  resetWorkoutUI();
+  showScreen('select');
+}
+
+// ══════════════════════════════════════════════
+// TUTORIAL
+// ══════════════════════════════════════════════
+async function startTutorial() {
+  showScreen('tutorial');
+  const mv = MOVEMENTS[state.currentMovement];
+  document.getElementById('tutorial-title').textContent = mv.nameUpper;
+
+  // Set tutorial text
+  const steps = mv.tutorial;
+  document.getElementById('tutorial-text').innerHTML =
+    steps.map(s => `<span>${s}</span>`).join('');
+
+  document.getElementById('tutorial-loading').style.display = 'flex';
+  const ok = await startCamera('tutorial');
+  document.getElementById('tutorial-loading').style.display = 'none';
+
+  if (ok) {
+    document.getElementById('tutorial-status').textContent = '✅ CÁMARA ACTIVA';
+    runTutorialPose();
+  } else {
+    document.getElementById('tutorial-status').textContent = '⚠️ SIN CÁMARA — MODO DEMO';
+  }
+}
+
+async function runTutorialPose() {
+  const video = document.getElementById('video-tutorial');
+  const canvas = document.getElementById('canvas-tutorial');
+  const ctx = canvas.getContext('2d');
+
+  let detector = null;
+  try {
+    detector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+    );
+    document.getElementById('tutorial-status').textContent = '🟢 POSE DETECTADA';
+  } catch(e) {
+    document.getElementById('tutorial-status').textContent = '⚠️ MODO DEMO';
+  }
+
+  const mv = MOVEMENTS[state.currentMovement];
+
+  // Draw bubble in tutorial
+  function drawTutorialBubble(ctx, w, h) {
+    const bx = w * 0.5;
+    const by = h * 0.62;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(bx, by, 28, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00FF41';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00FF41';
+    ctx.shadowBlur = 15;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(0,255,65,0.08)';
+    ctx.fill();
+    // Binary inside bubble
+    ctx.fillStyle = 'rgba(0,255,65,0.7)';
+    ctx.font = '8px Share Tech Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText('01', bx, by - 4);
+    ctx.fillText('10', bx, by + 8);
+    ctx.restore();
+  }
+
+  async function loop() {
+    if (!document.getElementById('screen-tutorial').classList.contains('active')) return;
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (detector && video.readyState >= 2) {
+      try {
+        const poses = await detector.estimatePoses(video);
+        if (poses[0]) drawSkeleton(ctx, poses[0].keypoints, canvas.width, canvas.height);
+      } catch(e) {}
+    }
+    drawTutorialBubble(ctx, canvas.width, canvas.height);
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ══════════════════════════════════════════════
+// WORKOUT
+// ══════════════════════════════════════════════
+async function startWorkout() {
+  // Stop tutorial camera if coming from there
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+  if (state.animFrame) { cancelAnimationFrame(state.animFrame); state.animFrame = null; }
+
+  showScreen('workout');
+  const mv = MOVEMENTS[state.currentMovement];
+  document.getElementById('workout-title').textContent = mv.nameUpper;
+  document.getElementById('workout-exercise-name').textContent = mv.nameUpper;
+  document.getElementById('timerNumber').textContent = state.selectedTime;
+
+  resetWorkoutUI();
+
+  document.getElementById('workout-loading').style.display = 'flex';
+  const ok = await startCamera('workout');
+
+  if (!ok) {
+    document.getElementById('workout-loading').style.display = 'none';
+    document.getElementById('workout-status').textContent = '⚠️ MODO DEMO — SIN CÁMARA';
+    return;
+  }
+
+  // Load TF model
+  try {
+    document.getElementById('workout-loading').querySelector('.loading-text').textContent = 'CARGANDO MODELO IA...';
+    state.detector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+    );
+    document.getElementById('workout-status').textContent = '🟢 IA LISTA';
+  } catch(e) {
+    document.getElementById('workout-status').textContent = '⚠️ POSE DEMO MODE';
+  }
+
+  document.getElementById('workout-loading').style.display = 'none';
+  placeBubble();
+  runPoseLoop();
+}
+
+function resetWorkoutUI() {
+  state.reps = 0;
+  state.streak = 0;
+  state.calories = 0;
+  state.headY = null;
+  state.headYBaseline = null;
+  state.inRep = false;
+  state.sessionActive = false;
+  state.timeLeft = state.selectedTime;
+
+  document.getElementById('repCount').textContent = '0';
+  document.getElementById('calCount').textContent = '0';
+  document.getElementById('timerNumber').textContent = state.selectedTime;
+  document.getElementById('timerRing').style.strokeDashoffset = '0';
+  document.getElementById('formTip').classList.remove('visible');
+  document.getElementById('streakBadge').classList.remove('visible');
+  document.getElementById('start-controls').style.display = 'block';
+  document.getElementById('running-controls').style.display = 'none';
+
+  // Remove existing bubbles
+  document.querySelectorAll('.bubble').forEach(b => b.remove());
+}
+
+function beginSession() {
+  state.sessionActive = true;
+  state.sessionStartTime = Date.now();
+  state.timeLeft = state.selectedTime;
+
+  document.getElementById('start-controls').style.display = 'none';
+  document.getElementById('running-controls').style.display = 'block';
+
+  const totalDash = 251.2;
+  const ring = document.getElementById('timerRing');
+
+  state.timerInterval = setInterval(() => {
+    state.timeLeft--;
+    document.getElementById('timerNumber').textContent = state.timeLeft;
+    const offset = totalDash * (1 - state.timeLeft / state.selectedTime);
+    ring.style.strokeDashoffset = offset;
+
+    // Color change as time runs out
+    if (state.timeLeft <= 10) ring.style.stroke = '#FF3B3B';
+    else if (state.timeLeft <= 20) ring.style.stroke = '#FFD600';
+
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      endSession();
+    }
+  }, 1000);
+}
+
+function endSession() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  state.sessionActive = false;
+  state.totalRepsToday += state.reps;
+  state.totalKcalToday += state.calories;
+
+  // Update home stats
+  document.getElementById('home-reps').textContent = state.totalRepsToday;
+  document.getElementById('home-kcal').textContent = Math.round(state.totalKcalToday);
+
+  // Stop camera
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+  if (state.animFrame) { cancelAnimationFrame(state.animFrame); state.animFrame = null; }
+
+  showResults();
+}
+
+function showResults() {
+  showScreen('results');
+  const elapsed = state.sessionStartTime ? Math.round((Date.now() - state.sessionStartTime) / 1000) : state.selectedTime;
+
+  document.getElementById('result-reps').textContent = state.reps;
+  document.getElementById('result-kcal').textContent = Math.round(state.calories);
+  document.getElementById('result-time').textContent = elapsed + 's';
+
+  if (state.reps >= 20) document.getElementById('results-headline').textContent = '¡Imparable! 🔥';
+  else if (state.reps >= 10) document.getElementById('results-headline').textContent = '¡Bien hecho! 💚';
+  else document.getElementById('results-headline').textContent = 'Sigue mejorando 💪';
+
+  // Compile animation
+  const lines = [
+    '> Analizando sesión...',
+    `> Reps validadas: ${state.reps}`,
+    `> Calorías: ${Math.round(state.calories)} kcal`,
+    `> Tiempo activo: ${elapsed}s`,
+    '> BUILD COMPLETE ✓'
+  ];
+  const container = document.getElementById('compileLines');
+  container.innerHTML = '';
+  lines.forEach((l, i) => {
+    const div = document.createElement('div');
+    div.className = 'compile-line';
+    div.style.animationDelay = `${i * 0.25}s`;
+    div.textContent = l;
+    container.appendChild(div);
+  });
+
+  // Matrix rain
+  generateMatrixRain();
+
+  // Check badges
+  if (state.reps > 0 && !state.earnedBadges.includes('first_rep'))
+    state.earnedBadges.push('first_rep');
+  if (!state.earnedBadges.includes('first_session'))
+    state.earnedBadges.push('first_session');
+}
+
+function generateMatrixRain() {
+  const container = document.getElementById('matrixRain');
+  container.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const col = document.createElement('div');
+    col.className = 'rain-col';
+    col.style.left = (i * 8.5) + '%';
+    col.style.animationDuration = (2 + Math.random() * 3) + 's';
+    col.style.animationDelay = (Math.random() * 2) + 's';
+    let txt = '';
+    for (let j = 0; j < 20; j++) txt += Math.round(Math.random()) + '\n';
+    col.textContent = txt;
+    container.appendChild(col);
+  }
+}
+
+// ══════════════════════════════════════════════
+// POSE DETECTION LOOP
+// ══════════════════════════════════════════════
+async function runPoseLoop() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas-workout');
+  const ctx = canvas.getContext('2d');
+
+  async function loop() {
+    if (!document.getElementById('screen-workout').classList.contains('active')) return;
+
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (state.detector && video.readyState >= 2) {
+      try {
+        const poses = await state.detector.estimatePoses(video);
+        if (poses[0]) {
+          processHead(poses[0].keypoints, canvas.width, canvas.height);
+          drawSkeleton(ctx, poses[0].keypoints, canvas.width, canvas.height);
+          document.getElementById('workout-status').textContent = '🟢 POSE DETECTADA';
+        } else {
+          document.getElementById('workout-status').textContent = '📡 BUSCA TU CUERPO...';
+        }
+      } catch(e) {}
+    }
+
+    drawBubbleOnCanvas(ctx, canvas.width, canvas.height);
+    state.animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ══════════════════════════════════════════════
+// HEAD TRACKING & REP VALIDATION
+// ══════════════════════════════════════════════
+function processHead(keypoints, w, h) {
+  if (!state.sessionActive) return;
+
+  // Nose keypoint (index 0) as head anchor
+  const nose = keypoints.find(k => k.name === 'nose');
+  if (!nose || nose.score < 0.3) return;
+
+  // Normalize Y (0-1, 0=top)
+  const ny = nose.y / h;
+
+  // Set baseline on first detection
+  if (!state.headYBaseline) {
+    state.headYBaseline = ny;
+    state.headY = ny;
+    return;
+  }
+
+  state.headY = ny;
+  const mv = MOVEMENTS[state.currentMovement];
+  const threshold = mv.threshold;
+
+  // Rep logic: head went DOWN enough and comes back UP
+  const droppedEnough = (state.headY - state.headYBaseline) > threshold;
+
+  if (droppedEnough && !state.inRep) {
+    state.inRep = true;
+    // Explode bubble
+    triggerBubblePop(w, h);
+  }
+
+  if (state.inRep && (state.headY - state.headYBaseline) < threshold * 0.4) {
+    const now = Date.now();
+    if (now - state.lastRepTime > 800) { // debounce
+      state.inRep = false;
+      state.lastRepTime = now;
+      countRep();
+    }
+  }
+}
+
+function countRep() {
+  state.reps++;
+  state.streak++;
+
+  // Calories: MET * weight(75kg assumed) / 3600 per second * ~2sec per rep
+  const mv = MOVEMENTS[state.currentMovement];
+  const calPerRep = (mv.met * 75 / 3600) * 2;
+  state.calories += calPerRep;
+
+  document.getElementById('repCount').textContent = state.reps;
+  document.getElementById('calCount').textContent = Math.round(state.calories);
+
+  // Flash screen
+  const flash = document.getElementById('screenFlash');
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 100);
+
+  // Show rep number float
+  showRepFloat();
+
+  // Streak display
+  if (state.streak >= 3) {
+    const badge = document.getElementById('streakBadge');
+    badge.textContent = `🔥 x${state.streak}`;
+    badge.classList.add('visible');
+  }
+
+  // Place new bubble
+  setTimeout(placeBubble, 300);
+
+  // Occasional form tip
+  if (state.reps % 5 === 0) showFormTip();
+}
+
+function showRepFloat() {
+  const el = document.createElement('div');
+  el.className = 'rep-flash';
+  el.textContent = state.reps;
+  el.style.left = '50%';
+  el.style.top = '45%';
+  el.style.transform = 'translateX(-50%)';
+  document.getElementById('screen-workout').appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+function showFormTip() {
+  const mv = MOVEMENTS[state.currentMovement];
+  const tip = document.getElementById('formTip');
+  tip.textContent = mv.tipMsg;
+  tip.classList.add('visible');
+  setTimeout(() => tip.classList.remove('visible'), 2500);
+}
+
+// ══════════════════════════════════════════════
+// BUBBLE SYSTEM
+// ══════════════════════════════════════════════
+function placeBubble() {
+  // Remove old bubbles
+  document.querySelectorAll('.bubble').forEach(b => b.remove());
+
+  const container = document.getElementById('screen-workout');
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.id = 'mainBubble';
+
+  // Position: center-ish, at ~60% height (where head lands when doing squat)
+  const size = 56;
+  bubble.style.width = size + 'px';
+  bubble.style.height = size + 'px';
+  bubble.style.left = (50 - size / 2 / window.innerWidth * 100) + '%';
+  bubble.style.top = '55%';
+
+  // Binary content
+  bubble.innerHTML = '<span style="font-size:8px;opacity:0.7;text-align:center;line-height:1.2;">01<br>10</span>';
+
+  container.appendChild(bubble);
+  state.bubbleActive = true;
+}
+
+function triggerBubblePop(w, h) {
+  const bubble = document.getElementById('mainBubble');
+  if (!bubble) return;
+
+  const rect = bubble.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  // Remove bubble
+  bubble.remove();
+  state.bubbleActive = false;
+
+  // Create particles
+  createParticles(cx, cy);
+
+  // Sound (Web Audio)
+  playPopSound();
+}
+
+function createParticles(cx, cy) {
+  const container = document.getElementById('screen-workout');
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / count) * Math.PI * 2;
+    const dist = 40 + Math.random() * 40;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+
+    // Color variation
+    const colors = ['#00FF41', '#00C853', '#FFFFFF', '#00FF41'];
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.transition = `all ${0.4 + Math.random() * 0.3}s ease-out`;
+    p.style.boxShadow = `0 0 6px #00FF41`;
+    container.appendChild(p);
+
+    requestAnimationFrame(() => {
+      p.style.transform = `translate(${tx}px, ${ty}px)`;
+      p.style.opacity = '0';
+    });
+
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+// ══════════════════════════════════════════════
+// SKELETON DRAW
+// ══════════════════════════════════════════════
+function drawSkeleton(ctx, keypoints, w, h) {
+  const connections = [
+    ['left_shoulder', 'right_shoulder'],
+    ['left_shoulder', 'left_elbow'],
+    ['left_elbow', 'left_wrist'],
+    ['right_shoulder', 'right_elbow'],
+    ['right_elbow', 'right_wrist'],
+    ['left_shoulder', 'left_hip'],
+    ['right_shoulder', 'right_hip'],
+    ['left_hip', 'right_hip'],
+    ['left_hip', 'left_knee'],
+    ['left_knee', 'left_ankle'],
+    ['right_hip', 'right_knee'],
+    ['right_knee', 'right_ankle'],
+  ];
+
+  const kpMap = {};
+  keypoints.forEach(k => { if (k.score > 0.3) kpMap[k.name] = k; });
+
+  ctx.save();
+  // Draw connections
+  ctx.strokeStyle = 'rgba(0,255,65,0.5)';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00FF41';
+  ctx.shadowBlur = 6;
+
+  connections.forEach(([a, b]) => {
+    if (kpMap[a] && kpMap[b]) {
+      ctx.beginPath();
+      ctx.moveTo(kpMap[a].x, kpMap[a].y);
+      ctx.lineTo(kpMap[b].x, kpMap[b].y);
+      ctx.stroke();
+    }
+  });
+
+  // Draw keypoints
+  Object.values(kpMap).forEach(k => {
+    ctx.beginPath();
+    ctx.arc(k.x, k.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#00FF41';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+  });
+
+  // Highlight nose (head anchor)
+  if (kpMap['nose']) {
+    ctx.beginPath();
+    ctx.arc(kpMap['nose'].x, kpMap['nose'].y, 8, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00FF41';
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 16;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+// Draw bubble on canvas (when no DOM bubble visible during detection)
+function drawBubbleOnCanvas(ctx, w, h) {
+  if (!state.bubbleActive) return;
+  // Bubble is DOM element, skip canvas draw
+}
+
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playPopSound() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    // Streak affects pitch
+    const basePitch = 400 + (state.streak * 20);
+    osc.frequency.setValueAtTime(basePitch, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(basePitch * 1.5, ctx.currentTime + 0.1);
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+    osc.type = state.streak >= 10 ? 'square' : 'sine';
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.25);
+  } catch(e) {}
+}
+
+function playSessionEndSound() {
+  try {
+    const ctx = getAudioCtx();
+    [523, 659, 784, 1046].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.2);
+    });
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+// Animate binary bg
+setInterval(() => {
+  if (document.getElementById('screen-home').classList.contains('active')) {
+    generateBinaryBg();
+  }
+}, 3000);
+
+// Update home stats display
+document.getElementById('home-streak').textContent = state.daysStreak;
+
+console.log('AlignFit v1.0 — Green Binary Mode 🟢');
+</script>
+</body>
+</html>
