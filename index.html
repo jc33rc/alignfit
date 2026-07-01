@@ -17,16 +17,16 @@ html,body{height:100%;overflow:hidden;background:var(--b);color:var(--w);font-fa
 .scr.on{display:flex;}
 
 /* ════════ ONBOARDING ════════ */
-#s-ob{background:var(--bs);padding:0;}
-.ob-wrap{display:flex;flex-direction:column;height:100%;padding:48px 24px 32px;}
+#s-ob{background:var(--bs);padding:0;overflow:hidden;}
+.ob-wrap{display:flex;flex-direction:column;padding:48px 24px 100px;overflow-y:auto;height:100%;}
 .ob-logo{font-family:var(--mono);font-size:32px;color:var(--g);letter-spacing:4px;text-shadow:0 0 20px var(--g);text-align:center;margin-bottom:2px;}
 .ob-logo span{color:var(--w);}
-.ob-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:32px;}
+.ob-sub{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:28px;}
 .ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:28px;}
 .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all .3s;}
 .dot.cur{background:var(--g);box-shadow:0 0 6px var(--g);width:18px;border-radius:3px;}
 .dot.done{background:var(--gd);}
-.ob-content{flex:1;display:flex;flex-direction:column;gap:14px;}
+.ob-content{display:flex;flex-direction:column;gap:14px;}
 .ob-step{display:none;flex-direction:column;gap:14px;}
 .ob-step.on{display:flex;}
 .ob-tag{font-family:var(--mono);font-size:9px;color:var(--g);letter-spacing:3px;text-transform:uppercase;}
@@ -40,6 +40,8 @@ html,body{height:100%;overflow:hidden;background:var(--b);color:var(--w);font-fa
 .ob-opt-name{font-size:14px;font-weight:600;margin-bottom:2px;}
 .ob-opt-desc{font-size:11px;color:rgba(255,255,255,0.35);}
 .ob-opt.sel .ob-opt-name{color:var(--g);}
+/* Fixed bottom button for onboarding — keyboard-proof */
+.ob-btn-fixed{position:fixed;bottom:0;left:0;right:0;padding:16px 24px 28px;background:linear-gradient(transparent,var(--bs) 40%);z-index:200;}
 
 /* ════════ HOME ════════ */
 #s-home{background:var(--bs);overflow-y:auto;}
@@ -251,8 +253,10 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
       </div>
     </div>
   </div>
-  <button class="bg" id="obBtn" onclick="obNext()" style="margin-top:20px;">CONTINUAR</button>
 </div>
+</div>
+<div class="ob-btn-fixed">
+  <button class="bg" id="obBtn" onclick="obNext()">CONTINUAR</button>
 </div>
 
 <!-- ══════ HOME ══════ -->
@@ -521,6 +525,9 @@ const S={
 function go(name){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+name).classList.add('on');
+  // Hide onboarding fixed button when not on onboarding
+  const obFixed=document.querySelector('.ob-btn-fixed');
+  if(obFixed) obFixed.style.display = name==='ob' ? 'block' : 'none';
   if(name==='badges') renderBadges();
 }
 
