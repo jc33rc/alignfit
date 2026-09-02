@@ -143,6 +143,10 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
 .ftip{position:fixed;bottom:170px;left:50%;transform:translateX(-50%);background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.3);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:10px;color:#FF7070;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:400;}
 .ftip.on{opacity:1;}
 .flash{position:fixed;inset:0;background:rgba(0,255,65,.09);pointer-events:none;z-index:300;opacity:0;transition:opacity .08s;}
+/* Plank hold overlay */
+.plank-overlay{position:fixed;bottom:160px;left:50%;transform:translateX(-50%);background:rgba(0,255,65,.08);border:2px solid rgba(0,255,65,.5);border-radius:16px;padding:14px 24px;text-align:center;z-index:400;display:none;transition:all .3s;}
+.po-text{font-family:var(--mono);font-size:13px;color:#00FF41;letter-spacing:1px;margin-bottom:4px;}
+.po-angle{font-family:var(--mono);font-size:22px;font-weight:700;color:rgba(255,255,255,.5);}
 .flash.on{opacity:1;}
 
 /* Workout bottom */
@@ -328,6 +332,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
   </div>
   <div class="loader" id="lwk"><div class="spin"></div><div class="ltext" id="lwk-txt">CARGANDO IA...</div></div>
   <div class="flash" id="flash"></div>
+  <div class="plank-overlay" id="plank-overlay"><div class="po-text">POSICIÓN DETECTADA</div><div class="po-angle">—</div></div>
   <div class="topbar"><div class="bk" onclick="stopAll()">←</div><div class="topbar-title" id="wk-title">SENTADILLA</div><div style="width:36px"></div></div>
   <div class="status" id="wk-st">📡 DETECTANDO...</div>
   <!-- HUD -->
@@ -450,19 +455,24 @@ const MOVES = {
   plank: {
     name:'Plancha', up:'PLANCHA', met:4.0, tip:'Caderas alineadas',
     lines:['Antebrazos en el suelo','Cuerpo recto, abdomen activo','Mantén el tiempo'],
-    // Hip angle (shoulder-hip-knee): ~170° = good plank, counts time not reps
+    // PLANK MODE: no rep counting — validates hold position
+    // Hip angle > 155° = good form (straight body)
+    // Hip angle < 140° = bad form (sagging or piking)
+    isHold: true,
     validate: (kps) => {
       const angle = hipAngle(kps);
-      return { angle, inBottom: angle > 155, inTop: false };
+      const goodForm = angle !== null && angle > 150;
+      return { angle, goodForm, inBottom: false, inTop: false };
     }
   },
   deadlift: {
     name:'Peso Muerto', up:'PESO MUERTO', met:5.5, tip:'Espalda recta',
     lines:['Pies al ancho de caderas','Empuja las caderas hacia atrás','Baja hasta explotar el globito'],
-    // Hip angle (shoulder-hip-knee): up ~170°, hinge ~100°
+    // Hip angle from floor camera: standing ~160°, hinge forward ~110-130°
+    // Loosened threshold to catch the hip hinge from low angle
     validate: (kps) => {
       const angle = hipAngle(kps);
-      return { angle, inBottom: angle < 120, inTop: angle > 155 };
+      return { angle, inBottom: angle < 140, inTop: angle > 158 };
     }
   },
   sumo: {
@@ -716,6 +726,14 @@ function resetUI() {
   document.getElementById('ctrl-pre').style.display = 'block';
   document.getElementById('ctrl-run').style.display = 'none';
   document.querySelectorAll('.bubble,.particle,.rfloat').forEach(b => b.remove());
+  // Plank overlay
+  const po = document.getElementById('plank-overlay');
+  const mv = MOVES[S.move];
+  if (po) po.style.display = mv.isHold ? 'block' : 'none';
+  // Update rep label for plank
+  document.querySelector('.rl').textContent = mv.isHold ? 'SEGS' : 'REPS';
+  // Hide/show bubble for plank
+  if (mv.isHold) document.querySelectorAll('.bubble').forEach(b=>b.remove());
 }
 
 function setT(t, el) {
@@ -778,36 +796,42 @@ async function runWkLoop() {
 
 // ══════════════════════════════════════════════════════════
 // REP DETECTION — ANGLE-BASED STATE MACHINE
-// This is the core fix: uses joint angles, not head position
 // ══════════════════════════════════════════════════════════
 function processRep(kps) {
   const mv = MOVES[S.move];
   const result = mv.validate(kps);
-
   if (!result || result.angle === null) return;
 
   const angle = Math.round(result.angle);
-
-  // Show angle in debug display
   document.getElementById('adbg').textContent = `Ángulo: ${angle}°`;
 
-  if (!S.sessActive) return;
-
-  const now = Date.now();
-
-  // STATE MACHINE:
-  // top → bottom: when angle crosses into bottom zone → explode bubble
-  // bottom → top: when angle crosses back into top zone → count rep
-
-  if (S.posState === 'top' && result.inBottom) {
-    // User went DOWN — crossed bottom threshold
-    S.posState = 'bottom';
-    triggerPop(); // Explode bubble
+  // ── PLANK: hold validation mode (no rep counting) ──
+  if (mv.isHold) {
+    updatePlankOverlay(result.goodForm, angle);
+    if (S.sessActive) {
+      // Count time-based "reps" every 5 seconds of good form
+      const now = Date.now();
+      if (result.goodForm && now - S.lastRepAt > 5000) {
+        S.lastRepAt = now;
+        S.reps++;
+        S.cal += (mv.met * S.user.weight / 3600) * 5;
+        document.getElementById('rnum').textContent = S.reps + 's';
+        document.getElementById('cnum').textContent = Math.round(S.cal);
+      }
+    }
+    return;
   }
 
+  if (!S.sessActive) return;
+  const now = Date.now();
+
+  // ── REGULAR MOVES: top→bottom→top state machine ──
+  if (S.posState === 'top' && result.inBottom) {
+    S.posState = 'bottom';
+    triggerPop();
+  }
   if (S.posState === 'bottom' && result.inTop) {
-    // User came back UP — crossed top threshold
-    if (now - S.lastRepAt > 500) { // 500ms debounce
+    if (now - S.lastRepAt > 500) {
       S.posState = 'top';
       S.lastRepAt = now;
       countRep();
@@ -815,10 +839,31 @@ function processRep(kps) {
   }
 }
 
+// ── PLANK OVERLAY — green/red body feedback ──
+function updatePlankOverlay(goodForm, angle) {
+  const overlay = document.getElementById('plank-overlay');
+  if (!overlay) return;
+  if (goodForm) {
+    overlay.style.background = 'rgba(0,255,65,0.08)';
+    overlay.style.borderColor = 'rgba(0,255,65,0.5)';
+    overlay.querySelector('.po-text').textContent = '✅ POSICIÓN CORRECTA';
+    overlay.querySelector('.po-text').style.color = '#00FF41';
+    overlay.querySelector('.po-angle').textContent = angle + '°';
+  } else {
+    overlay.style.background = 'rgba(255,59,59,0.08)';
+    overlay.style.borderColor = 'rgba(255,59,59,0.5)';
+    overlay.querySelector('.po-text').textContent = '⚠️ AJUSTA LAS CADERAS';
+    overlay.querySelector('.po-text').style.color = '#FF7070';
+    overlay.querySelector('.po-angle').textContent = angle + '°';
+  }
+}
+
 // ══════════════════════════════════════════════════════════
 // BUBBLE
 // ══════════════════════════════════════════════════════════
 function spawnBubble() {
+  // No bubble for plank — it uses hold overlay instead
+  if (MOVES[S.move].isHold) return;
   document.querySelectorAll('.bubble').forEach(b => b.remove());
   const b = document.createElement('div');
   b.className = 'bubble'; b.id = 'mb';
