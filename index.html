@@ -76,78 +76,70 @@ html,body{height:100%;overflow:hidden;background:var(--b);color:var(--w);font-fa
 .pos-box{background:var(--bc);border:1px solid rgba(0,255,65,.1);border-radius:13px;padding:16px;margin-bottom:auto;width:100%;}
 .pos-diagram{font-family:var(--mono);font-size:11px;color:rgba(0,255,65,.5);line-height:2.2;text-align:center;}
 
-/* ═══ CHOICE ═══ */
-#s-choice{background:var(--bs);align-items:center;padding:60px 22px 32px;gap:14px;}
-.choice-mv{font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:3px;text-transform:uppercase;text-align:center;}
-.choice-name{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px;}
-.choice-opts{display:flex;flex-direction:column;gap:9px;width:100%;}
-.choice-btn{background:var(--bc);border:1px solid rgba(0,255,65,.13);border-radius:13px;padding:18px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all .15s;width:100%;}
-.choice-btn:active{border-color:var(--g);background:rgba(0,255,65,.06);}
-.choice-icon{font-size:26px;}
-.choice-btn-name{font-size:14px;font-weight:600;margin-bottom:2px;}
-.choice-btn-desc{font-size:10px;color:rgba(255,255,255,.38);}
+/* ═══ TUTORIAL SCREEN (animated figure) ═══ */
+#s-tutorial{background:var(--bs);align-items:center;padding:0;}
+.tut-wrap{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;}
+.tut-header{padding:48px 20px 0;text-align:center;}
+.tut-mv-tag{font-family:var(--mono);font-size:9px;color:var(--g);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
+.tut-mv-name{font-size:20px;font-weight:700;margin-bottom:16px;}
+/* Animated figure area */
+.tut-fig{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;}
+.tut-svg-wrap{width:180px;height:220px;position:relative;}
+/* Tutorial text */
+.tut-text-area{padding:0 24px;margin-bottom:12px;}
+.tut-lines-static{display:flex;flex-direction:column;gap:6px;}
+.tline-s{font-family:var(--mono);font-size:13px;color:var(--g);line-height:1.5;text-shadow:0 0 6px rgba(0,255,65,.35);opacity:0;animation:fu .4s ease both;}
+.tline-s:nth-child(2){animation-delay:.12s}.tline-s:nth-child(3){animation-delay:.24s}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.tut-bottom{padding:16px 20px 32px;display:flex;flex-direction:column;gap:10px;}
 
 /* ═══ CAMERA SCREENS ═══ */
-#s-tutorial,#s-workout{background:#000;overflow:hidden;}
+#s-cam{background:#000;overflow:hidden;}
 .cam{position:fixed;inset:0;background:#050505;}
 video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
 canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
 
-/* ═══ FIXED UI OVER CAMERA ═══ */
+/* Fixed UI */
 .topbar{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;z-index:500;background:linear-gradient(rgba(0,0,0,.82),transparent);}
 .topbar-title{font-family:var(--mono);font-size:11px;color:var(--g);letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px var(--g);}
 .bk{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;}
-
-/* Status bar */
 .status{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.88);border:1px solid rgba(0,255,65,.25);border-radius:20px;padding:6px 16px;font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:1px;white-space:nowrap;z-index:500;}
-
-/* Loader */
 .loader{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:600;gap:14px;}
 .spin{width:36px;height:36px;border:2px solid rgba(0,255,65,.15);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ltext{font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:2px;animation:blink 1s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* Tutorial overlay */
-.tut-over{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.95) 30%);padding:30px 20px 22px;z-index:400;}
-.tut-lines{margin-bottom:14px;}
-.tline{font-family:var(--mono);font-size:14px;color:var(--g);line-height:2.2;display:block;text-shadow:0 0 7px rgba(0,255,65,.4);animation:fu .4s ease both;}
-.tline:nth-child(2){animation-delay:.1s}.tline:nth-child(3){animation-delay:.2s}
-@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.tut-btns{display:flex;gap:9px;}
-
 /* ═══ WORKOUT HUD ═══ */
-/* Timer */
-.timer-wrap{position:fixed;top:90px;left:50%;transform:translateX(-50%);text-align:center;z-index:400;}
-.tsvg{transform:rotate(-90deg);}
-.tbg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:4;}
-.tprog{fill:none;stroke:var(--g);stroke-width:4;stroke-linecap:round;stroke-dasharray:238.76;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .5s;filter:drop-shadow(0 0 5px var(--g));}
-.tnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:24px;font-weight:700;}
-
-/* Rep counter - BIG */
-.repbox{position:fixed;top:88px;right:14px;background:rgba(0,0,0,.88);border:2px solid rgba(0,255,65,.5);border-radius:14px;padding:10px 14px;text-align:center;z-index:400;}
-.rn{font-family:var(--mono);font-size:56px;font-weight:700;color:var(--g);line-height:1;text-shadow:0 0 18px var(--g);}
-.rl{font-size:7px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+/* BIG CIRCLE TIMER */
+.circle-timer{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:400;}
+.ct-svg{transform:rotate(-90deg);filter:drop-shadow(0 0 8px rgba(0,255,65,.4));}
+.ct-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:8;}
+.ct-prog{fill:none;stroke:var(--g);stroke-width:8;stroke-linecap:round;stroke-dasharray:565.49;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .5s;}
+.ct-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.ct-reps{font-family:var(--mono);font-size:64px;font-weight:700;color:var(--g);line-height:1;text-shadow:0 0 20px var(--g);}
+.ct-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.ct-time{font-family:var(--mono);font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;}
 
 /* Calories */
-.calbox{position:fixed;top:88px;left:14px;background:rgba(0,0,0,.88);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;text-align:center;z-index:400;}
+.calbox{position:fixed;top:92px;left:14px;background:rgba(0,0,0,.88);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;text-align:center;z-index:400;}
 .cn{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--o);}
 .cl{font-size:7px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
 
-/* Angle debug display */
-.angle-dbg{position:fixed;top:210px;left:14px;background:rgba(0,0,0,.75);border:1px solid rgba(0,255,65,.15);border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:9px;color:rgba(0,255,65,.7);z-index:400;line-height:1.7;}
-
-/* Streak / tip */
+/* Streak */
 .stk{position:fixed;bottom:175px;right:14px;font-family:var(--mono);font-size:13px;color:var(--g);text-shadow:0 0 8px var(--g);opacity:0;transition:opacity .3s;z-index:400;}
 .stk.on{opacity:1;}
 .ftip{position:fixed;bottom:170px;left:50%;transform:translateX(-50%);background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.3);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:10px;color:#FF7070;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:400;}
 .ftip.on{opacity:1;}
 .flash{position:fixed;inset:0;background:rgba(0,255,65,.09);pointer-events:none;z-index:300;opacity:0;transition:opacity .08s;}
-/* Plank hold overlay */
-.plank-overlay{position:fixed;bottom:160px;left:50%;transform:translateX(-50%);background:rgba(0,255,65,.08);border:2px solid rgba(0,255,65,.5);border-radius:16px;padding:14px 24px;text-align:center;z-index:400;display:none;transition:all .3s;}
-.po-text{font-family:var(--mono);font-size:13px;color:#00FF41;letter-spacing:1px;margin-bottom:4px;}
-.po-angle{font-family:var(--mono);font-size:22px;font-weight:700;color:rgba(255,255,255,.5);}
-.flash.on{opacity:1;}
+
+/* Plank overlay */
+.plank-ov{position:fixed;bottom:165px;left:50%;transform:translateX(-50%);border:2px solid rgba(0,255,65,.5);border-radius:16px;padding:12px 22px;text-align:center;z-index:400;display:none;transition:all .3s;background:rgba(0,255,65,.08);}
+.po-text{font-family:var(--mono);font-size:12px;color:#00FF41;letter-spacing:1px;margin-bottom:3px;}
+.po-angle{font-family:var(--mono);font-size:20px;font-weight:700;color:rgba(255,255,255,.45);}
+
+/* Angle debug */
+.adbg{position:fixed;top:210px;left:14px;background:rgba(0,0,0,.75);border:1px solid rgba(0,255,65,.12);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:9px;color:rgba(0,255,65,.6);z-index:400;}
 
 /* Workout bottom */
 .wkbot{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.98) 28%);padding:26px 18px 26px;z-index:400;}
@@ -161,12 +153,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
 .bg:active{transform:scale(.98);}
 .bgh{width:100%;background:transparent;color:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:12px;font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;}
 
-/* Bubble - FIXED position, always visible */
+/* Bubble */
 .bubble{position:fixed;border-radius:50%;border:3px solid var(--g);background:rgba(0,255,65,.1);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--g);pointer-events:none;box-shadow:0 0 22px rgba(0,255,65,.55),inset 0 0 14px rgba(0,255,65,.1);animation:bp 1.4s ease-in-out infinite;z-index:350;}
 @keyframes bp{0%,100%{transform:scale(1);}50%{transform:scale(1.1);box-shadow:0 0 34px rgba(0,255,65,.8);}}
-.bubble.popped{border-color:#00BFFF;color:#00BFFF;box-shadow:0 0 28px rgba(0,191,255,.7);}
-.rfloat{position:fixed;font-family:var(--mono);font-size:36px;font-weight:700;color:var(--g);text-shadow:0 0 16px var(--g);pointer-events:none;z-index:450;animation:rfx .9s ease both;}
-@keyframes rfx{0%{opacity:1;transform:translateX(-50%) scale(.5)}55%{opacity:1;transform:translateX(-50%) scale(1.3) translateY(-12px)}100%{opacity:0;transform:translateX(-50%) scale(1) translateY(-40px)}}
+.bubble.popped{border-color:#00BFFF;box-shadow:0 0 28px rgba(0,191,255,.7);}
+.rfloat{position:fixed;font-family:var(--mono);font-size:38px;font-weight:700;color:var(--g);text-shadow:0 0 16px var(--g);pointer-events:none;z-index:450;animation:rfx .9s ease both;}
+@keyframes rfx{0%{opacity:1;transform:translateX(-50%) scale(.5)}55%{opacity:1;transform:translateX(-50%) scale(1.3) translateY(-12px)}100%{opacity:0;transform:translateX(-50%) translateY(-40px)}}
 .particle{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:380;}
 
 /* ═══ RESULTS ═══ */
@@ -178,7 +170,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
 .cbox{font-family:var(--mono);font-size:10px;color:rgba(0,255,65,.5);line-height:1.9;margin-bottom:16px;}
 .cl2{opacity:0;animation:clx .3s ease both;}
 @keyframes clx{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
-.rtag{font-family:var(--mono);font-size:9px;color:var(--g);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:4px;}
+.res-tag{font-family:var(--mono);font-size:9px;color:var(--g);letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:4px;}
 .rh{font-size:22px;font-weight:700;text-align:center;margin-bottom:18px;}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px;}
 .rc{background:var(--bc);border:1px solid rgba(0,255,65,.1);border-radius:13px;padding:15px;text-align:center;}
@@ -220,20 +212,9 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
   <div class="ob-logo">Align<span>Fit</span></div>
   <div class="ob-sub">AI FORM COACH</div>
   <div class="ob-dots"><div class="dot cur" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
-  <div class="ob-step on" id="ob0">
-    <div class="ob-tag">Paso 1 de 4</div><div class="ob-q">¿Cómo te llamas?</div>
-    <input class="ob-in" id="ob-name" type="text" placeholder="Tu nombre" maxlength="20" style="font-size:19px;">
-  </div>
-  <div class="ob-step" id="ob1">
-    <div class="ob-tag">Paso 2 de 4</div><div class="ob-q">¿Cuánto pesas?</div>
-    <input class="ob-in" id="ob-weight" type="number" placeholder="70" min="30" max="250">
-    <div class="ob-unit">kilogramos</div>
-  </div>
-  <div class="ob-step" id="ob2">
-    <div class="ob-tag">Paso 3 de 4</div><div class="ob-q">¿Cuántos años tienes?</div>
-    <input class="ob-in" id="ob-age" type="number" placeholder="28" min="10" max="99">
-    <div class="ob-unit">años</div>
-  </div>
+  <div class="ob-step on" id="ob0"><div class="ob-tag">Paso 1 de 4</div><div class="ob-q">¿Cómo te llamas?</div><input class="ob-in" id="ob-name" type="text" placeholder="Tu nombre" maxlength="20" style="font-size:19px;"></div>
+  <div class="ob-step" id="ob1"><div class="ob-tag">Paso 2 de 4</div><div class="ob-q">¿Cuánto pesas?</div><input class="ob-in" id="ob-weight" type="number" placeholder="70" min="30" max="250"><div class="ob-unit">kilogramos</div></div>
+  <div class="ob-step" id="ob2"><div class="ob-tag">Paso 3 de 4</div><div class="ob-q">¿Cuántos años tienes?</div><input class="ob-in" id="ob-age" type="number" placeholder="28" min="10" max="99"><div class="ob-unit">años</div></div>
   <div class="ob-step" id="ob3">
     <div class="ob-tag">Paso 4 de 4</div><div class="ob-q">Nivel de entrenamiento</div>
     <div class="ob-opts">
@@ -253,7 +234,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
   <div class="chal" onclick="goMove('squat')">
     <div class="chal-pill">⚡ RETO DEL DÍA</div>
     <div class="chal-title">El Minuto de Fuego</div>
-    <div class="chal-desc">60 segundos de sentadillas. Meta: 20 globitos.</div>
+    <div class="chal-desc">60 segundos de sentadillas. ¿Cuántos globitos puedes explotar?</div>
     <div class="chal-foot"><div class="chal-rew">🏆 Insignia + 50pts</div><div style="color:var(--g);font-size:18px;">›</div></div>
   </div>
   <div class="stats">
@@ -283,67 +264,83 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
   <div class="pos-icon">📱</div>
   <div class="pos-tag">Antes de empezar</div>
   <div class="pos-title">Coloca el teléfono en el suelo, horizontal</div>
-  <div class="pos-sub">A 80–100 cm. La cámara debe verte desde la cintura para arriba.</div>
+  <div class="pos-sub">A 80–100 cm de distancia.<br>La cámara debe verte desde la cintura para arriba.</div>
   <div class="pos-box"><div class="pos-diagram">[👤]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[📱 ↔]<br>← 80–100 cm →</div></div>
   <button class="bg" onclick="posReady()" style="width:100%;margin-top:22px;">LISTO, CONTINUAR</button>
   <button class="bgh" onclick="go('home')" style="width:100%;">VOLVER</button>
 </div>
 
-<!-- CHOICE -->
-<div id="s-choice" class="scr">
-  <div class="choice-mv" id="ch-tag">SENTADILLA</div>
-  <div class="choice-name" id="ch-name">Sentadilla</div>
-  <div class="choice-opts">
-    <div class="choice-btn" onclick="launchTut()">
-      <div class="choice-icon">📖</div>
-      <div><div class="choice-btn-name">Tutorial</div><div class="choice-btn-desc">Aprende la técnica con la cámara activa</div></div>
-    </div>
-    <div class="choice-btn" onclick="launchWk()">
-      <div class="choice-icon">⚡</div>
-      <div><div class="choice-btn-name">Entrenar</div><div class="choice-btn-desc">Modo libre con timer y globitos AR</div></div>
-    </div>
-  </div>
-  <button class="bgh" onclick="go('home')" style="width:100%;margin-top:auto;">VOLVER</button>
-</div>
-
-<!-- TUTORIAL -->
+<!-- TUTORIAL — Animated figure (NO camera yet) -->
 <div id="s-tutorial" class="scr">
-  <div class="cam">
-    <video id="vtut" autoplay muted playsinline></video>
-    <canvas id="ctut"></canvas>
+<div class="tut-wrap">
+  <div class="tut-header">
+    <div class="bk" style="display:inline-flex;margin-bottom:12px;" onclick="go('home')">←</div>
+    <div class="tut-mv-tag" id="tut-tag">SENTADILLA</div>
+    <div class="tut-mv-name" id="tut-name">Sentadilla</div>
   </div>
-  <div class="loader" id="ltut"><div class="spin"></div><div class="ltext" id="ltut-txt">INICIANDO...</div></div>
-  <div class="topbar"><div class="bk" onclick="stopAll()">←</div><div class="topbar-title" id="tut-title">SENTADILLA</div><div style="width:36px"></div></div>
-  <div class="status" id="tut-st">📡 CARGANDO...</div>
-  <div class="tut-over">
-    <div class="tut-lines" id="tut-lines"></div>
-    <div class="tut-btns">
-      <button class="bg" onclick="goWkFromTut()" style="flex:2">⚡ ENTRENAR</button>
-      <button class="bgh" onclick="stopAll()" style="flex:1;margin:0;">VOLVER</button>
+  <!-- Animated SVG figure -->
+  <div class="tut-fig">
+    <div class="tut-svg-wrap">
+      <svg id="tut-svg" viewBox="0 0 180 220" width="180" height="220" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
   </div>
+  <!-- 3-line guide -->
+  <div class="tut-text-area">
+    <div class="tut-lines-static" id="tut-lines"></div>
+  </div>
+  <div class="tut-bottom">
+    <button class="bg" onclick="launchCam()">📷 ACTIVAR CÁMARA Y PRACTICAR</button>
+    <button class="bgh" onclick="launchWkDirect()">⚡ IR DIRECTO A ENTRENAR</button>
+  </div>
+</div>
 </div>
 
-<!-- WORKOUT -->
-<div id="s-workout" class="scr">
+<!-- CAMERA (Tutorial practice + Workout share same cam screen) -->
+<div id="s-cam" class="scr">
   <div class="cam">
-    <video id="vwk" autoplay muted playsinline></video>
-    <canvas id="cwk"></canvas>
+    <video id="vcam" autoplay muted playsinline></video>
+    <canvas id="ccam"></canvas>
   </div>
-  <div class="loader" id="lwk"><div class="spin"></div><div class="ltext" id="lwk-txt">CARGANDO IA...</div></div>
+  <div class="loader" id="lcam"><div class="spin"></div><div class="ltext" id="lcam-txt">INICIANDO...</div></div>
   <div class="flash" id="flash"></div>
-  <div class="plank-overlay" id="plank-overlay"><div class="po-text">POSICIÓN DETECTADA</div><div class="po-angle">—</div></div>
-  <div class="topbar"><div class="bk" onclick="stopAll()">←</div><div class="topbar-title" id="wk-title">SENTADILLA</div><div style="width:36px"></div></div>
-  <div class="status" id="wk-st">📡 DETECTANDO...</div>
-  <!-- HUD -->
-  <div class="timer-wrap"><svg class="tsvg" width="84" height="84" viewBox="0 0 84 84"><circle class="tbg" cx="42" cy="42" r="38"/><circle class="tprog" id="tprog" cx="42" cy="42" r="38"/></svg><div class="tnum" id="tnum">60</div></div>
-  <div class="repbox"><div class="rn" id="rnum">0</div><div class="rl">REPS</div></div>
+  <div class="topbar"><div class="bk" onclick="stopAll()">←</div><div class="topbar-title" id="cam-title">SENTADILLA</div><div style="width:36px"></div></div>
+  <div class="status" id="cam-st">📡 DETECTANDO...</div>
+
+  <!-- Plank overlay -->
+  <div class="plank-ov" id="plank-ov"><div class="po-text">POSICIÓN DETECTADA</div><div class="po-angle" id="po-angle">—</div></div>
+
+  <!-- Angle debug -->
+  <div class="adbg" id="adbg">Ángulo: —</div>
+
+  <!-- BIG CIRCLE TIMER -->
+  <div class="circle-timer" id="circle-timer">
+    <svg class="ct-svg" width="190" height="190" viewBox="0 0 190 190">
+      <circle class="ct-bg" cx="95" cy="95" r="85"/>
+      <circle class="ct-prog" id="ct-prog" cx="95" cy="95" r="85"/>
+    </svg>
+    <div class="ct-center">
+      <div class="ct-reps" id="ct-reps">0</div>
+      <div class="ct-label" id="ct-label">REPS</div>
+      <div class="ct-time" id="ct-time">—</div>
+    </div>
+  </div>
+
+  <!-- Calories -->
   <div class="calbox"><div class="cn" id="cnum">0</div><div class="cl">KCAL 🔥</div></div>
-  <div class="angle-dbg" id="adbg">Ángulo: —</div>
+
+  <!-- Streak / tip -->
   <div class="stk" id="stk">🔥 x3</div>
   <div class="ftip" id="ftip">Rodillas afuera</div>
-  <!-- Controls -->
-  <div class="wkbot">
+
+  <!-- Tutorial cam overlay (shown during cam practice mode) -->
+  <div id="tut-cam-over" style="display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.95) 30%);padding:28px 20px 22px;z-index:400;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--g);margin-bottom:14px;" id="tut-cam-lines"></div>
+    <button class="bg" onclick="switchToWorkout()">⚡ INICIAR ENTRENAMIENTO</button>
+    <button class="bgh" onclick="stopAll()">VOLVER</button>
+  </div>
+
+  <!-- Workout controls -->
+  <div class="wkbot" id="wkbot" style="display:none;">
     <div class="exname" id="wk-ex">SENTADILLA</div>
     <div id="ctrl-pre">
       <div class="trow">
@@ -365,7 +362,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
   <div class="mrain" id="mrain"></div>
   <div class="rin">
     <div class="cbox" id="cbox"></div>
-    <div class="rtag">Sesión Completada</div>
+    <div class="res-tag">Sesión Completada</div>
     <div class="rh" id="rh">¡Bien hecho! 💚</div>
     <div class="rgrid">
       <div class="rc"><div class="rv" id="rReps">0</div><div class="rll">Reps</div></div>
@@ -373,7 +370,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
       <div class="rc full"><div class="rv" id="rTime">0s</div><div class="rll">Tiempo</div></div>
     </div>
     <button class="bg" onclick="go('home')" style="margin-bottom:10px;">VOLVER AL INICIO</button>
-    <button class="bgh" onclick="launchWk()">OTRA RONDA</button>
+    <button class="bgh" onclick="launchWkDirect()">OTRA RONDA</button>
   </div>
 </div>
 
@@ -420,71 +417,120 @@ canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // MOVEMENT CONFIG — angle-based validation
-// Based on research: hip-knee-ankle angle for squat/lunge
-// elbow angle for push-up, hip angle for deadlift
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 const MOVES = {
-  squat: {
-    name:'Sentadilla', up:'SENTADILLA', met:5.0, tip:'Rodillas hacia afuera',
+  squat:{name:'Sentadilla',up:'SENTADILLA',met:5.0,tip:'Rodillas hacia afuera',
     lines:['Pies al ancho de los hombros','Baja hasta explotar el globito','Rodillas hacia afuera'],
-    // Knee angle (hip-knee-ankle): standing ~170°, bottom ~90°
-    validate: (kps) => {
-      const angle = kneeAngle(kps);
-      return { angle, inBottom: angle < 110, inTop: angle > 155 };
-    }
-  },
-  pushup: {
-    name:'Push-up', up:'PUSH-UP', met:3.8, tip:'Cuerpo recto',
+    validate:(kps)=>{const a=kneeAngle(kps);return{angle:a,inBottom:a<110,inTop:a>155};}},
+  pushup:{name:'Push-up',up:'PUSH-UP',met:3.8,tip:'Cuerpo recto',
     lines:['Manos al ancho de los hombros','Baja el pecho hasta el globito','Cuerpo recto de cabeza a talones'],
-    // Elbow angle (shoulder-elbow-wrist): up ~160°, down ~80°
-    validate: (kps) => {
-      const angle = elbowAngle(kps);
-      return { angle, inBottom: angle < 100, inTop: angle > 145 };
-    }
-  },
-  lunge: {
-    name:'Estocada', up:'ESTOCADA', met:4.5, tip:'Rodilla no pase el pie',
+    validate:(kps)=>{const a=elbowAngle(kps);return{angle:a,inBottom:a<100,inTop:a>145};}},
+  lunge:{name:'Estocada',up:'ESTOCADA',met:4.5,tip:'Rodilla no pase el pie',
     lines:['Un paso adelante','Baja hasta explotar el globito','Alterna cada pierna'],
-    validate: (kps) => {
-      const angle = kneeAngle(kps);
-      return { angle, inBottom: angle < 115, inTop: angle > 155 };
-    }
-  },
-  plank: {
-    name:'Plancha', up:'PLANCHA', met:4.0, tip:'Caderas alineadas',
-    lines:['Antebrazos en el suelo','Cuerpo recto, abdomen activo','Mantén el tiempo'],
-    // PLANK MODE: no rep counting — validates hold position
-    // Hip angle > 155° = good form (straight body)
-    // Hip angle < 140° = bad form (sagging or piking)
-    isHold: true,
-    validate: (kps) => {
-      const angle = hipAngle(kps);
-      const goodForm = angle !== null && angle > 150;
-      return { angle, goodForm, inBottom: false, inTop: false };
-    }
-  },
-  deadlift: {
-    name:'Peso Muerto', up:'PESO MUERTO', met:5.5, tip:'Espalda recta',
+    validate:(kps)=>{const a=kneeAngle(kps);return{angle:a,inBottom:a<115,inTop:a>155};}},
+  plank:{name:'Plancha',up:'PLANCHA',met:4.0,tip:'Levanta las caderas',isHold:true,
+    lines:['Manos en el suelo, brazos extendidos','Cuerpo recto de cabeza a talones','Abdomen activo, mantén la posición'],
+    validate:(kps)=>{const a=hipAngle(kps);return{angle:a,goodForm:a!==null&&a>152&&a<190,inBottom:false,inTop:false};}},
+  deadlift:{name:'Peso Muerto',up:'PESO MUERTO',met:5.5,tip:'Espalda recta',
     lines:['Pies al ancho de caderas','Empuja las caderas hacia atrás','Baja hasta explotar el globito'],
-    // Hip angle from floor camera: standing ~160°, hinge forward ~110-130°
-    // Loosened threshold to catch the hip hinge from low angle
-    validate: (kps) => {
-      const angle = hipAngle(kps);
-      return { angle, inBottom: angle < 140, inTop: angle > 158 };
-    }
-  },
-  sumo: {
-    name:'Sumo', up:'SUMO', met:5.0, tip:'Rodillas hacia afuera',
+    validate:(kps)=>{const a=hipAngle(kps);return{angle:a,inBottom:a<140,inTop:a>158};}},
+  sumo:{name:'Sumo',up:'SUMO',met:5.0,tip:'Rodillas hacia afuera',
     lines:['Pies más anchos, puntas afuera','Baja hasta explotar el globito','Rodillas hacia afuera'],
-    validate: (kps) => {
-      const angle = kneeAngle(kps);
-      return { angle, inBottom: angle < 110, inTop: angle > 155 };
-    }
+    validate:(kps)=>{const a=kneeAngle(kps);return{angle:a,inBottom:a<110,inTop:a>155};}},
+};
+
+// ═══ ANIMATED SVG FIGURES per movement ═══
+const FIGS = {
+  squat: (t) => {
+    const y = 60 + Math.sin(t)*38; // head bobs
+    const ky = 120 + Math.sin(t)*30; // knees
+    return `
+      <circle cx="90" cy="${40+Math.sin(t)*8}" r="14" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${54+Math.sin(t)*8}" x2="90" y2="${90+Math.sin(t)*10}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${66+Math.sin(t)*9}" x2="${68+Math.cos(t)*6}" y2="${80+Math.sin(t)*4}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${66+Math.sin(t)*9}" x2="${112-Math.cos(t)*6}" y2="${80+Math.sin(t)*4}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${90+Math.sin(t)*10}" x2="${72+Math.sin(t)*8}" y2="${ky}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${90+Math.sin(t)*10}" x2="${108-Math.sin(t)*8}" y2="${ky}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="${72+Math.sin(t)*8}" y1="${ky}" x2="${68+Math.sin(t)*4}" y2="${150}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="${108-Math.sin(t)*8}" y1="${ky}" x2="${112-Math.sin(t)*4}" y2="${150}" stroke="#00FF41" stroke-width="2"/>
+      <circle cx="${72+Math.sin(t)*8}" cy="${ky}" r="4" fill="#00FF41"/>
+      <circle cx="${108-Math.sin(t)*8}" cy="${ky}" r="4" fill="#00FF41"/>`;
+  },
+  pushup: (t) => {
+    const y = 90 + Math.sin(t)*20;
+    return `
+      <circle cx="90" cy="${y-40}" r="13" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${y-27}" x2="90" y2="${y}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${y-15}" x2="60" y2="${y+10}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${y-15}" x2="120" y2="${y+10}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="60" y1="${y+10}" x2="48" y2="${y+30}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="120" y1="${y+10}" x2="132" y2="${y+30}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${y}" x2="70" y2="${y+40}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${y}" x2="110" y2="${y+40}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="70" y1="${y+40}" x2="68" y2="${y+60}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="110" y1="${y+40}" x2="112" y2="${y+60}" stroke="#00FF41" stroke-width="2"/>`;
+  },
+  lunge: (t) => {
+    const phase = (Math.sin(t)+1)/2;
+    const frontKneeY = 100 + phase*40;
+    return `
+      <circle cx="90" cy="35" r="13" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="48" x2="90" y2="90" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="65" x2="68" y2="78" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="65" x2="112" y2="78" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="90" x2="${70+phase*10}" y2="${frontKneeY}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="90" x2="${115-phase*5}" y2="${90+phase*20}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="${70+phase*10}" y1="${frontKneeY}" x2="${68+phase*12}" y2="175" stroke="#00FF41" stroke-width="2"/>
+      <line x1="${115-phase*5}" y1="${90+phase*20}" x2="${118-phase*5}" y2="${130+phase*20}" stroke="#00FF41" stroke-width="2"/>
+      <circle cx="${70+phase*10}" cy="${frontKneeY}" r="4" fill="#00FF41"/>`;
+  },
+  plank: (t) => {
+    const sag = Math.sin(t*0.5)*4;
+    return `
+      <circle cx="145" cy="90" r="13" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="132" y1="90" x2="90" y2="${95+sag}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${95+sag}" x2="40" y2="${100+sag}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="120" y1="88" x2="108" y2="115" stroke="#00FF41" stroke-width="2"/>
+      <line x1="108" y1="115" x2="100" y2="135" stroke="#00FF41" stroke-width="2"/>
+      <line x1="65" y1="${97+sag}" x2="58" y2="125" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="50" y1="${99+sag}" x2="42" y2="125" stroke="#00FF41" stroke-width="2.5"/>
+      <circle cx="90" cy="${95+sag}" r="5" fill="${Math.abs(sag)<2?'#00FF41':'#FF3B3B'}"/>`;
+  },
+  deadlift: (t) => {
+    const bend = Math.sin(t)*35;
+    const headX = 90 - bend*0.4;
+    const headY = 50 + bend*0.5;
+    return `
+      <circle cx="${headX}" cy="${headY}" r="13" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="${headX}" y1="${headY+13}" x2="90" y2="${110+bend*0.2}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="${headX+5}" y1="${headY+25}" x2="${headX+30}" y2="${headY+45}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="${headX+5}" y1="${headY+25}" x2="${headX-20}" y2="${headY+45}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${110+bend*0.2}" x2="72" y2="150" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${110+bend*0.2}" x2="108" y2="150" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="72" y1="150" x2="70" y2="185" stroke="#00FF41" stroke-width="2"/>
+      <line x1="108" y1="150" x2="110" y2="185" stroke="#00FF41" stroke-width="2"/>
+      <circle cx="90" cy="${110+bend*0.2}" r="5" fill="#00FF41"/>`;
+  },
+  sumo: (t) => {
+    const y = 120 + Math.sin(t)*35;
+    const spread = 32;
+    return `
+      <circle cx="90" cy="${35+Math.sin(t)*6}" r="13" fill="none" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${48+Math.sin(t)*6}" x2="90" y2="${88+Math.sin(t)*8}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${64+Math.sin(t)*7}" x2="66" y2="${76+Math.sin(t)*3}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${64+Math.sin(t)*7}" x2="114" y2="${76+Math.sin(t)*3}" stroke="#00FF41" stroke-width="2"/>
+      <line x1="90" y1="${88+Math.sin(t)*8}" x2="${90-spread}" y2="${y}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="90" y1="${88+Math.sin(t)*8}" x2="${90+spread}" y2="${y}" stroke="#00FF41" stroke-width="2.5"/>
+      <line x1="${90-spread}" y1="${y}" x2="${85-spread}" y2="185" stroke="#00FF41" stroke-width="2"/>
+      <line x1="${90+spread}" y1="${y}" x2="${95+spread}" y2="185" stroke="#00FF41" stroke-width="2"/>
+      <circle cx="${90-spread}" cy="${y}" r="4" fill="#00FF41"/>
+      <circle cx="${90+spread}" cy="${y}" r="4" fill="#00FF41"/>`;
   },
 };
 
+// ═══ BADGES ═══
 const BADGES=[
   {id:'first_rep',ic:'🟢',nm:'Primer Globito'},{id:'first_sess',ic:'🟢',nm:'1ª Sesión'},
   {id:'first_flame',ic:'🔥',nm:'1ª Llama'},{id:'first_stk',ic:'💚',nm:'1ª Racha'},
@@ -509,510 +555,420 @@ const BADGES=[
   {id:'first_week',ic:'📅',nm:'1ª Semana'},{id:'first_rec',ic:'⭐',nm:'1er Récord'},
 ];
 
-// ══════════════════════════════════════════════════════════
-// ANGLE MATH — 3-point vector angle using atan2
-// ══════════════════════════════════════════════════════════
-function angleBetween(A, B, C) {
-  // Angle at point B formed by A-B-C
-  if (!A || !B || !C) return null;
-  const radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
-  let angle = Math.abs(radians * 180 / Math.PI);
-  if (angle > 180) angle = 360 - angle;
-  return angle;
-}
-
-function getKp(kps, name) {
-  const k = kps.find(k => k.name === name);
-  return (k && k.score > 0.15) ? k : null;
-}
-
-// Use best available side (left or right), average if both available
-function kneeAngle(kps) {
-  const lHip = getKp(kps,'left_hip'), lKnee = getKp(kps,'left_knee'), lAnk = getKp(kps,'left_ankle');
-  const rHip = getKp(kps,'right_hip'), rKnee = getKp(kps,'right_knee'), rAnk = getKp(kps,'right_ankle');
-  const L = angleBetween(lHip, lKnee, lAnk);
-  const R = angleBetween(rHip, rKnee, rAnk);
-  if (L && R) return (L + R) / 2;
-  return L || R || null;
-}
-
-function elbowAngle(kps) {
-  const lSh = getKp(kps,'left_shoulder'), lEl = getKp(kps,'left_elbow'), lWr = getKp(kps,'left_wrist');
-  const rSh = getKp(kps,'right_shoulder'), rEl = getKp(kps,'right_elbow'), rWr = getKp(kps,'right_wrist');
-  const L = angleBetween(lSh, lEl, lWr);
-  const R = angleBetween(rSh, rEl, rWr);
-  if (L && R) return (L + R) / 2;
-  return L || R || null;
-}
-
-function hipAngle(kps) {
-  const lSh = getKp(kps,'left_shoulder'), lHip = getKp(kps,'left_hip'), lKnee = getKp(kps,'left_knee');
-  const rSh = getKp(kps,'right_shoulder'), rHip = getKp(kps,'right_hip'), rKnee = getKp(kps,'right_knee');
-  const L = angleBetween(lSh, lHip, lKnee);
-  const R = angleBetween(rSh, rHip, rKnee);
-  if (L && R) return (L + R) / 2;
-  return L || R || null;
-}
-
-// ══════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════
-const S = {
-  user: {name:'', weight:70, age:28, level:'beginner'},
-  move: 'squat', selTime: 30,
-  sessActive: false, reps: 0, streak: 0, cal: 0,
-  totReps: 0, totKcal: 0,
-  sessStart: null, timerLeft: 30, tInterval: null,
-  detector: null, animF: null, stream: null,
-  // Rep state machine
-  posState: 'top',   // 'top' | 'bottom'
-  lastRepAt: 0,
-  obStep: 0, lvl: '',
-  earnedBadges: [],
+// ═══ STATE ═══
+const S={
+  user:{name:'',weight:70,age:28,level:'beginner'},
+  move:'squat',selTime:30,
+  sessActive:false,reps:0,streak:0,cal:0,
+  totReps:0,totKcal:0,sessStart:null,
+  timerLeft:30,tInterval:null,
+  detector:null,animF:null,stream:null,
+  posState:'top',lastRepAt:0,
+  camMode:'workout', // 'tutorial' | 'workout'
+  obStep:0,lvl:'',earnedBadges:[],
+  figAnim:null,figT:0,
 };
 
-// ══════════════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════════════
-function go(name) {
-  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
-  document.getElementById('s-' + name).classList.add('on');
-  // Hide onboarding fixed button on other screens
-  const obf = document.querySelector('.ob-btn-fixed');
-  if (obf) obf.style.display = name === 'ob' ? 'block' : 'none';
-  if (name === 'badges') renderBadges();
+// ═══ ANGLE MATH ═══
+function angleBetween(A,B,C){
+  if(!A||!B||!C)return null;
+  const rad=Math.atan2(C.y-B.y,C.x-B.x)-Math.atan2(A.y-B.y,A.x-B.x);
+  let a=Math.abs(rad*180/Math.PI);
+  if(a>180)a=360-a;
+  return a;
+}
+function getKp(kps,name){const k=kps.find(k=>k.name===name);return(k&&k.score>.15)?k:null;}
+function kneeAngle(kps){
+  const L=angleBetween(getKp(kps,'left_hip'),getKp(kps,'left_knee'),getKp(kps,'left_ankle'));
+  const R=angleBetween(getKp(kps,'right_hip'),getKp(kps,'right_knee'),getKp(kps,'right_ankle'));
+  if(L&&R)return(L+R)/2;return L||R||null;
+}
+function elbowAngle(kps){
+  const L=angleBetween(getKp(kps,'left_shoulder'),getKp(kps,'left_elbow'),getKp(kps,'left_wrist'));
+  const R=angleBetween(getKp(kps,'right_shoulder'),getKp(kps,'right_elbow'),getKp(kps,'right_wrist'));
+  if(L&&R)return(L+R)/2;return L||R||null;
+}
+function hipAngle(kps){
+  const L=angleBetween(getKp(kps,'left_shoulder'),getKp(kps,'left_hip'),getKp(kps,'left_knee'));
+  const R=angleBetween(getKp(kps,'right_shoulder'),getKp(kps,'right_hip'),getKp(kps,'right_knee'));
+  if(L&&R)return(L+R)/2;return L||R||null;
 }
 
-// ══════════════════════════════════════════════════════════
-// ONBOARDING
-// ══════════════════════════════════════════════════════════
-function pickLvl(l, el) {
-  S.lvl = l;
-  document.querySelectorAll('.ob-opt').forEach(x => x.classList.remove('sel'));
-  el.classList.add('sel');
+// ═══ NAV ═══
+function go(name){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+name).classList.add('on');
+  const obf=document.querySelector('.ob-btn-fixed');
+  if(obf)obf.style.display=name==='ob'?'block':'none';
+  if(name==='badges')renderBadges();
 }
-function obNext() {
-  const st = S.obStep;
-  if (st === 0) { const v = document.getElementById('ob-name').value.trim(); if (!v) return; S.user.name = v; }
-  else if (st === 1) { const v = parseFloat(document.getElementById('ob-weight').value); if (!v || v < 30) return; S.user.weight = v; }
-  else if (st === 2) { const v = parseInt(document.getElementById('ob-age').value); if (!v || v < 10) return; S.user.age = v; }
-  else if (st === 3) { if (!S.lvl) return; S.user.level = S.lvl; document.getElementById('hgreet').textContent = `Hola, ${S.user.name} 👋`; go('home'); return; }
-  document.getElementById('ob' + st).classList.remove('on');
+
+// ═══ ONBOARDING ═══
+function pickLvl(l,el){S.lvl=l;document.querySelectorAll('.ob-opt').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');}
+function obNext(){
+  const st=S.obStep;
+  if(st===0){const v=document.getElementById('ob-name').value.trim();if(!v)return;S.user.name=v;}
+  else if(st===1){const v=parseFloat(document.getElementById('ob-weight').value);if(!v||v<30)return;S.user.weight=v;}
+  else if(st===2){const v=parseInt(document.getElementById('ob-age').value);if(!v||v<10)return;S.user.age=v;}
+  else if(st===3){if(!S.lvl)return;S.user.level=S.lvl;document.getElementById('hgreet').textContent=`Hola, ${S.user.name} 👋`;go('home');return;}
+  document.getElementById('ob'+st).classList.remove('on');
   S.obStep++;
-  document.getElementById('ob' + S.obStep).classList.add('on');
-  [0,1,2,3].forEach(i => { const d = document.getElementById('d'+i); d.className = 'dot' + (i < S.obStep ? ' done' : i === S.obStep ? ' cur' : ''); });
-  if (S.obStep === 3) document.getElementById('obBtn').textContent = 'COMENZAR';
+  document.getElementById('ob'+S.obStep).classList.add('on');
+  [0,1,2,3].forEach(i=>{const d=document.getElementById('d'+i);d.className='dot'+(i<S.obStep?' done':i===S.obStep?' cur':'');});
+  if(S.obStep===3)document.getElementById('obBtn').textContent='COMENZAR';
 }
 
-// ══════════════════════════════════════════════════════════
-// MOVE SELECTION
-// ══════════════════════════════════════════════════════════
-function goMove(mv) { S.move = mv; go('pos'); }
-function posReady() {
-  const mv = MOVES[S.move];
-  document.getElementById('ch-tag').textContent = mv.up;
-  document.getElementById('ch-name').textContent = mv.name;
-  go('choice');
-}
+// ═══ MOVE SELECTION ═══
+function goMove(mv){S.move=mv;go('pos');}
+function posReady(){showTutorial();}
 
-// ══════════════════════════════════════════════════════════
-// CAMERA
-// ══════════════════════════════════════════════════════════
-async function startCam(vid) {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ideal:640}, height:{ideal:480} }, audio:false });
-    S.stream = stream;
-    const v = document.getElementById(vid);
-    v.srcObject = stream;
-    await new Promise(r => v.onloadedmetadata = r);
-    v.play();
-    return true;
-  } catch(e) { console.warn('cam:', e); return false; }
-}
-function killCam() {
-  if (S.stream) { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
-  if (S.animF) { cancelAnimationFrame(S.animF); S.animF = null; }
-  if (S.tInterval) { clearInterval(S.tInterval); S.tInterval = null; }
-  S.sessActive = false; S.detector = null;
-  document.querySelectorAll('.bubble,.particle,.rfloat').forEach(b => b.remove());
-}
-function stopAll() { killCam(); go('home'); }
-
-// ══════════════════════════════════════════════════════════
-// TUTORIAL
-// ══════════════════════════════════════════════════════════
-async function launchTut() {
+// ═══ TUTORIAL — Animated figure ═══
+function showTutorial(){
+  const mv=MOVES[S.move];
+  document.getElementById('tut-tag').textContent=mv.up;
+  document.getElementById('tut-name').textContent=mv.name;
+  document.getElementById('tut-lines').innerHTML=mv.lines.map((l,i)=>
+    `<span class="tline-s" style="animation-delay:${i*.14}s">→ ${l}</span>`).join('');
   go('tutorial');
-  const mv = MOVES[S.move];
-  document.getElementById('tut-title').textContent = mv.up;
-  document.getElementById('tut-lines').innerHTML = mv.lines.map((l,i) =>
-    `<span class="tline" style="animation-delay:${i*.12}s">${l}</span>`).join('');
-  document.getElementById('ltut').style.display = 'flex';
-  const ok = await startCam('vtut');
-  document.getElementById('ltut').style.display = 'none';
-  if (ok) { document.getElementById('tut-st').textContent = '✅ CÁMARA ACTIVA'; runTutLoop(); }
-  else { document.getElementById('tut-st').textContent = '⚠️ SIN CÁMARA'; }
+  startFigAnim();
 }
-async function runTutLoop() {
-  const v = document.getElementById('vtut'), c = document.getElementById('ctut');
-  const ctx = c.getContext('2d');
-  let det = null;
-  try {
-    det = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING });
-    document.getElementById('tut-st').textContent = '🟢 DETECTANDO POSE';
-  } catch(e) {}
-  function loop() {
-    if (!document.getElementById('s-tutorial').classList.contains('on')) return;
-    c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
-    ctx.clearRect(0,0,c.width,c.height);
-    if (det && v.readyState >= 2) det.estimatePoses(v).then(p => { if(p[0]) drawSkel(ctx,p[0].keypoints); }).catch(()=>{});
-    drawTutBubble(ctx, c.width, c.height);
-    requestAnimationFrame(loop);
-  }
-  loop();
-}
-function drawTutBubble(ctx, w, h) {
-  const bx = w*.5, by = h*.58, r = 38;
-  ctx.save();
-  ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI*2);
-  ctx.strokeStyle = '#00FF41'; ctx.lineWidth = 3; ctx.shadowColor = '#00FF41'; ctx.shadowBlur = 22; ctx.stroke();
-  ctx.fillStyle = 'rgba(0,255,65,.08)'; ctx.fill();
-  ctx.fillStyle = 'rgba(0,255,65,.7)'; ctx.font = 'bold 11px Share Tech Mono'; ctx.textAlign = 'center';
-  ctx.fillText('01', bx, by-4); ctx.fillText('10', bx, by+12);
-  ctx.restore();
-}
-function goWkFromTut() { killCam(); launchWk(); }
 
-// ══════════════════════════════════════════════════════════
-// WORKOUT
-// ══════════════════════════════════════════════════════════
-async function launchWk() {
+function startFigAnim(){
+  stopFigAnim();
+  S.figT=0;
+  const svg=document.getElementById('tut-svg');
+  // Glow effect
+  svg.innerHTML=`<defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g filter="url(#glow)" id="fig-g"></g>`;
+  const g=svg.getElementById('fig-g');
+  function frame(){
+    S.figT+=0.05;
+    const fn=FIGS[S.move]||FIGS.squat;
+    g.innerHTML=fn(S.figT);
+    S.figAnim=requestAnimationFrame(frame);
+  }
+  frame();
+}
+function stopFigAnim(){if(S.figAnim){cancelAnimationFrame(S.figAnim);S.figAnim=null;}}
+
+function launchCam(){
+  stopFigAnim();
+  S.camMode='tutorial';
+  openCamScreen();
+}
+function launchWkDirect(){
+  stopFigAnim();
+  S.camMode='workout';
+  openCamScreen();
+}
+function switchToWorkout(){
+  S.camMode='workout';
+  document.getElementById('tut-cam-over').style.display='none';
+  document.getElementById('wkbot').style.display='block';
+  document.getElementById('circle-timer').style.display='block';
+  document.getElementById('wk-ex').textContent=MOVES[S.move].up;
+  resetWkUI(false); // don't re-init cam
+}
+
+// ═══ CAMERA ═══
+async function startCam(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    S.stream=stream;
+    const v=document.getElementById('vcam');
+    v.srcObject=stream;await new Promise(r=>v.onloadedmetadata=r);v.play();
+    return true;
+  }catch(e){console.warn('cam:',e);return false;}
+}
+function killCam(){
+  if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}
+  if(S.animF){cancelAnimationFrame(S.animF);S.animF=null;}
+  if(S.tInterval){clearInterval(S.tInterval);S.tInterval=null;}
+  S.sessActive=false;S.detector=null;
+  document.querySelectorAll('.bubble,.particle,.rfloat').forEach(b=>b.remove());
+}
+function stopAll(){killCam();stopFigAnim();go('home');}
+
+async function openCamScreen(){
   killCam();
-  go('workout');
-  const mv = MOVES[S.move];
-  document.getElementById('wk-title').textContent = mv.up;
-  document.getElementById('wk-ex').textContent = mv.up;
-  resetUI();
+  go('cam');
+  const mv=MOVES[S.move];
+  document.getElementById('cam-title').textContent=mv.up;
 
-  document.getElementById('lwk').style.display = 'flex';
-  document.getElementById('lwk-txt').textContent = 'INICIANDO CÁMARA...';
-  const ok = await startCam('vwk');
-  if (!ok) { document.getElementById('lwk').style.display = 'none'; document.getElementById('wk-st').textContent = '⚠️ SIN CÁMARA'; return; }
+  // Show/hide correct UI
+  const isTut=S.camMode==='tutorial';
+  document.getElementById('tut-cam-over').style.display=isTut?'block':'none';
+  document.getElementById('wkbot').style.display=isTut?'none':'block';
+  document.getElementById('circle-timer').style.display=isTut?'none':'block';
+  document.getElementById('plank-ov').style.display='none';
 
-  document.getElementById('lwk-txt').textContent = 'CARGANDO MODELO IA...';
-  try {
-    S.detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING });
-    document.getElementById('wk-st').textContent = '✅ LISTO — PRESIONA INICIAR';
-  } catch(e) {
-    document.getElementById('wk-st').textContent = '⚠️ DEMO MODE';
+  if(isTut){
+    // Tutorial cam: show 3 lines overlay
+    document.getElementById('tut-cam-lines').innerHTML=mv.lines.map(l=>`<div>→ ${l}</div>`).join('');
+  } else {
+    resetWkUI(true);
   }
-  document.getElementById('lwk').style.display = 'none';
-  spawnBubble();
-  runWkLoop();
+
+  document.getElementById('lcam').style.display='flex';
+  document.getElementById('lcam-txt').textContent='INICIANDO CÁMARA...';
+  const ok=await startCam();
+  if(!ok){document.getElementById('lcam').style.display='none';document.getElementById('cam-st').textContent='⚠️ SIN CÁMARA';return;}
+
+  document.getElementById('lcam-txt').textContent='CARGANDO MODELO IA...';
+  try{
+    S.detector=await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet,
+      {modelType:poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING});
+    document.getElementById('cam-st').textContent=isTut?'🟢 PRACTICA EL MOVIMIENTO':'✅ LISTO — PRESIONA INICIAR';
+  }catch(e){document.getElementById('cam-st').textContent='⚠️ DEMO MODE';}
+
+  document.getElementById('lcam').style.display='none';
+  if(!isTut)spawnBubble();
+  runCamLoop();
 }
 
-function resetUI() {
-  S.reps = 0; S.streak = 0; S.cal = 0;
-  S.sessActive = false; S.timerLeft = S.selTime;
-  S.posState = 'top'; S.lastRepAt = 0;
-  document.getElementById('rnum').textContent = '0';
-  document.getElementById('cnum').textContent = '0';
-  document.getElementById('tnum').textContent = S.selTime;
-  document.getElementById('tprog').style.strokeDashoffset = '0';
-  document.getElementById('tprog').style.stroke = 'var(--g)';
+// ═══ WORKOUT UI ═══
+function resetWkUI(initCam){
+  S.reps=0;S.streak=0;S.cal=0;
+  S.sessActive=false;S.timerLeft=S.selTime;
+  S.posState='top';S.lastRepAt=0;
+  document.getElementById('ct-reps').textContent='0';
+  document.getElementById('cnum').textContent='0';
+  document.getElementById('ct-time').textContent=S.selTime+'s';
+  document.getElementById('ct-prog').style.strokeDashoffset='0';
+  document.getElementById('ct-prog').style.stroke='var(--g)';
   document.getElementById('stk').classList.remove('on');
   document.getElementById('ftip').classList.remove('on');
-  document.getElementById('adbg').textContent = 'Ángulo: —';
-  document.getElementById('ctrl-pre').style.display = 'block';
-  document.getElementById('ctrl-run').style.display = 'none';
-  document.querySelectorAll('.bubble,.particle,.rfloat').forEach(b => b.remove());
-  // Plank overlay
-  const po = document.getElementById('plank-overlay');
-  const mv = MOVES[S.move];
-  if (po) po.style.display = mv.isHold ? 'block' : 'none';
-  // Update rep label for plank
-  document.querySelector('.rl').textContent = mv.isHold ? 'SEGS' : 'REPS';
-  // Hide/show bubble for plank
-  if (mv.isHold) document.querySelectorAll('.bubble').forEach(b=>b.remove());
+  document.getElementById('adbg').textContent='Ángulo: —';
+  document.getElementById('ctrl-pre').style.display='block';
+  document.getElementById('ctrl-run').style.display='none';
+  const mv=MOVES[S.move];
+  document.getElementById('ct-label').textContent=mv.isHold?'SEGS':'REPS';
+  document.getElementById('plank-ov').style.display=mv.isHold?'block':'none';
+  if(!mv.isHold&&initCam)spawnBubble();
 }
 
-function setT(t, el) {
-  S.selTime = t; S.timerLeft = t;
-  document.getElementById('tnum').textContent = t;
-  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('sel'));
+function setT(t,el){
+  S.selTime=t;S.timerLeft=t;
+  document.getElementById('ct-time').textContent=t+'s';
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
 }
 
-function beginSess() {
-  S.sessActive = true; S.sessStart = Date.now(); S.timerLeft = S.selTime;
-  document.getElementById('ctrl-pre').style.display = 'none';
-  document.getElementById('ctrl-run').style.display = 'block';
-  const CIRC = 238.76;
-  S.tInterval = setInterval(() => {
+function beginSess(){
+  S.sessActive=true;S.sessStart=Date.now();S.timerLeft=S.selTime;
+  document.getElementById('ctrl-pre').style.display='none';
+  document.getElementById('ctrl-run').style.display='block';
+  const CIRC=565.49; // 2π×90
+  S.tInterval=setInterval(()=>{
     S.timerLeft--;
-    document.getElementById('tnum').textContent = S.timerLeft;
-    document.getElementById('tprog').style.strokeDashoffset = CIRC * (1 - S.timerLeft / S.selTime);
-    if (S.timerLeft <= 10) document.getElementById('tprog').style.stroke = '#FF3B3B';
-    else if (S.timerLeft <= 20) document.getElementById('tprog').style.stroke = '#FFD600';
-    if (S.timerLeft <= 0) { clearInterval(S.tInterval); endSess(); }
-  }, 1000);
+    const pct=S.timerLeft/S.selTime;
+    document.getElementById('ct-prog').style.strokeDashoffset=CIRC*(1-pct);
+    document.getElementById('ct-time').textContent=S.timerLeft+'s';
+    if(S.timerLeft<=10)document.getElementById('ct-prog').style.stroke='#FF3B3B';
+    else if(S.timerLeft<=20)document.getElementById('ct-prog').style.stroke='#FFD600';
+    if(S.timerLeft<=0){clearInterval(S.tInterval);endSess();}
+  },1000);
 }
 
-function endSess() {
-  if (S.tInterval) { clearInterval(S.tInterval); S.tInterval = null; }
-  S.sessActive = false;
-  S.totReps += S.reps; S.totKcal += S.cal;
-  document.getElementById('hReps').textContent = S.totReps;
-  document.getElementById('hKcal').textContent = Math.round(S.totKcal);
-  killCam(); playEnd(); showResults();
+function endSess(){
+  if(S.tInterval){clearInterval(S.tInterval);S.tInterval=null;}
+  S.sessActive=false;
+  S.totReps+=S.reps;S.totKcal+=S.cal;
+  document.getElementById('hReps').textContent=S.totReps;
+  document.getElementById('hKcal').textContent=Math.round(S.totKcal);
+  killCam();playEnd();showResults();
 }
 
-// ══════════════════════════════════════════════════════════
-// POSE LOOP
-// ══════════════════════════════════════════════════════════
-async function runWkLoop() {
-  const v = document.getElementById('vwk'), c = document.getElementById('cwk');
-  const ctx = c.getContext('2d');
-  async function loop() {
-    if (!document.getElementById('s-workout').classList.contains('on')) return;
-    c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+// ═══ POSE LOOP ═══
+async function runCamLoop(){
+  const v=document.getElementById('vcam'),c=document.getElementById('ccam');
+  const ctx=c.getContext('2d');
+  async function loop(){
+    if(!document.getElementById('s-cam').classList.contains('on'))return;
+    c.width=v.videoWidth||640;c.height=v.videoHeight||480;
     ctx.clearRect(0,0,c.width,c.height);
-    if (S.detector && v.readyState >= 2) {
-      try {
-        const poses = await S.detector.estimatePoses(v);
-        if (poses[0]) {
-          drawSkel(ctx, poses[0].keypoints);
-          processRep(poses[0].keypoints);
-          document.getElementById('wk-st').textContent = '🟢 POSE DETECTADA';
-        } else {
-          document.getElementById('wk-st').textContent = '📡 BUSCA TU CUERPO...';
+    if(S.detector&&v.readyState>=2){
+      try{
+        const poses=await S.detector.estimatePoses(v);
+        if(poses[0]){
+          drawSkel(ctx,poses[0].keypoints);
+          if(S.camMode==='workout')processRep(poses[0].keypoints);
+          document.getElementById('cam-st').textContent=S.camMode==='tutorial'?'🟢 PRACTICA EL MOVIMIENTO':'🟢 POSE DETECTADA';
+        }else{
+          document.getElementById('cam-st').textContent='📡 BUSCA TU CUERPO...';
         }
-      } catch(e) {}
+      }catch(e){}
     }
-    S.animF = requestAnimationFrame(loop);
+    S.animF=requestAnimationFrame(loop);
   }
   loop();
 }
 
-// ══════════════════════════════════════════════════════════
-// REP DETECTION — ANGLE-BASED STATE MACHINE
-// ══════════════════════════════════════════════════════════
-function processRep(kps) {
-  const mv = MOVES[S.move];
-  const result = mv.validate(kps);
-  if (!result || result.angle === null) return;
+// ═══ REP DETECTION ═══
+function processRep(kps){
+  const mv=MOVES[S.move];
+  const result=mv.validate(kps);
+  if(!result||result.angle===null)return;
+  const angle=Math.round(result.angle);
+  document.getElementById('adbg').textContent=`Ángulo: ${angle}°`;
 
-  const angle = Math.round(result.angle);
-  document.getElementById('adbg').textContent = `Ángulo: ${angle}°`;
-
-  // ── PLANK: hold validation mode (no rep counting) ──
-  if (mv.isHold) {
-    updatePlankOverlay(result.goodForm, angle);
-    if (S.sessActive) {
-      // Count time-based "reps" every 5 seconds of good form
-      const now = Date.now();
-      if (result.goodForm && now - S.lastRepAt > 5000) {
-        S.lastRepAt = now;
-        S.reps++;
-        S.cal += (mv.met * S.user.weight / 3600) * 5;
-        document.getElementById('rnum').textContent = S.reps + 's';
-        document.getElementById('cnum').textContent = Math.round(S.cal);
+  // PLANK: hold mode
+  if(mv.isHold){
+    const po=document.getElementById('plank-ov');
+    document.getElementById('po-angle').textContent=angle+'°';
+    if(result.goodForm){
+      po.style.background='rgba(0,255,65,.08)';
+      po.style.borderColor='rgba(0,255,65,.5)';
+      po.querySelector('.po-text').textContent='✅ CUERPO RECTO — ¡AGUANTA!';
+      po.querySelector('.po-text').style.color='#00FF41';
+      if(S.sessActive){
+        const now=Date.now();
+        if(now-S.lastRepAt>1000){
+          S.lastRepAt=now;
+          S.reps++;
+          S.cal+=(mv.met*S.user.weight/3600)*1;
+          document.getElementById('ct-reps').textContent=S.reps;
+          document.getElementById('cnum').textContent=Math.round(S.cal);
+        }
       }
+    }else{
+      po.style.background='rgba(255,59,59,.08)';
+      po.style.borderColor='rgba(255,59,59,.5)';
+      po.querySelector('.po-text').textContent='⚠️ LEVANTA LAS CADERAS';
+      po.querySelector('.po-text').style.color='#FF7070';
     }
     return;
   }
 
-  if (!S.sessActive) return;
-  const now = Date.now();
+  if(!S.sessActive)return;
+  const now=Date.now();
 
-  // ── REGULAR MOVES: top→bottom→top state machine ──
-  if (S.posState === 'top' && result.inBottom) {
-    S.posState = 'bottom';
+  // Regular rep state machine
+  if(S.posState==='top'&&result.inBottom){
+    S.posState='bottom';
     triggerPop();
   }
-  if (S.posState === 'bottom' && result.inTop) {
-    if (now - S.lastRepAt > 500) {
-      S.posState = 'top';
-      S.lastRepAt = now;
+  if(S.posState==='bottom'&&result.inTop){
+    if(now-S.lastRepAt>500){
+      S.posState='top';
+      S.lastRepAt=now;
       countRep();
     }
   }
 }
 
-// ── PLANK OVERLAY — green/red body feedback ──
-function updatePlankOverlay(goodForm, angle) {
-  const overlay = document.getElementById('plank-overlay');
-  if (!overlay) return;
-  if (goodForm) {
-    overlay.style.background = 'rgba(0,255,65,0.08)';
-    overlay.style.borderColor = 'rgba(0,255,65,0.5)';
-    overlay.querySelector('.po-text').textContent = '✅ POSICIÓN CORRECTA';
-    overlay.querySelector('.po-text').style.color = '#00FF41';
-    overlay.querySelector('.po-angle').textContent = angle + '°';
-  } else {
-    overlay.style.background = 'rgba(255,59,59,0.08)';
-    overlay.style.borderColor = 'rgba(255,59,59,0.5)';
-    overlay.querySelector('.po-text').textContent = '⚠️ AJUSTA LAS CADERAS';
-    overlay.querySelector('.po-text').style.color = '#FF7070';
-    overlay.querySelector('.po-angle').textContent = angle + '°';
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// BUBBLE
-// ══════════════════════════════════════════════════════════
-function spawnBubble() {
-  // No bubble for plank — it uses hold overlay instead
-  if (MOVES[S.move].isHold) return;
-  document.querySelectorAll('.bubble').forEach(b => b.remove());
-  const b = document.createElement('div');
-  b.className = 'bubble'; b.id = 'mb';
-  const sz = 90;
-  b.style.cssText = `width:${sz}px;height:${sz}px;left:calc(50% - ${sz/2}px);top:42%;`;
-  b.innerHTML = '<span style="line-height:1.5;text-align:center">01<br>10</span>';
+// ═══ BUBBLE ═══
+function spawnBubble(){
+  if(MOVES[S.move].isHold)return;
+  document.querySelectorAll('.bubble').forEach(b=>b.remove());
+  const b=document.createElement('div');
+  b.className='bubble';b.id='mb';
+  const sz=90;
+  b.style.cssText=`width:${sz}px;height:${sz}px;left:calc(50% - ${sz/2}px);top:42%;`;
+  b.innerHTML='<span style="line-height:1.5;text-align:center">01<br>10</span>';
   document.body.appendChild(b);
 }
-
-function triggerPop() {
-  const b = document.getElementById('mb');
-  if (!b) return;
-  const r = b.getBoundingClientRect();
-  const cx = r.left + r.width/2, cy = r.top + r.height/2;
-  // Flash blue then remove
+function triggerPop(){
+  const b=document.getElementById('mb');if(!b)return;
+  const r=b.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
   b.classList.add('popped');
-  setTimeout(() => b.remove(), 200);
-  burst(cx, cy);
-  playPop();
+  setTimeout(()=>b.remove(),180);
+  burst(cx,cy);playPop();
 }
-
-function burst(cx, cy) {
-  for (let i = 0; i < 16; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const a = (i/16)*Math.PI*2, d = 30 + Math.random()*50;
-    p.style.left = cx + 'px'; p.style.top = cy + 'px';
-    p.style.background = i%3===0 ? '#00BFFF' : i%5===0 ? '#fff' : '#00FF41';
-    p.style.boxShadow = `0 0 6px ${i%3===0?'#00BFFF':'#00FF41'}`;
-    p.style.transition = `all ${.3+Math.random()*.25}s ease-out`;
+function burst(cx,cy){
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div');p.className='particle';
+    const a=(i/16)*Math.PI*2,d=28+Math.random()*48;
+    p.style.left=cx+'px';p.style.top=cy+'px';
+    p.style.background=i%3===0?'#00BFFF':i%5===0?'#fff':'#00FF41';
+    p.style.boxShadow=`0 0 6px ${i%3===0?'#00BFFF':'#00FF41'}`;
+    p.style.transition=`all ${.28+Math.random()*.22}s ease-out`;
     document.body.appendChild(p);
-    requestAnimationFrame(() => { p.style.transform = `translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`; p.style.opacity = '0'; });
-    setTimeout(() => p.remove(), 650);
+    requestAnimationFrame(()=>{p.style.transform=`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;p.style.opacity='0';});
+    setTimeout(()=>p.remove(),600);
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// COUNT REP
-// ══════════════════════════════════════════════════════════
-function countRep() {
-  S.reps++; S.streak++;
-  S.cal += (MOVES[S.move].met * S.user.weight / 3600) * 2.2;
-  document.getElementById('rnum').textContent = S.reps;
-  document.getElementById('cnum').textContent = Math.round(S.cal);
+// ═══ COUNT REP ═══
+function countRep(){
+  S.reps++;S.streak++;
+  S.cal+=(MOVES[S.move].met*S.user.weight/3600)*2.2;
+  document.getElementById('ct-reps').textContent=S.reps;
+  document.getElementById('cnum').textContent=Math.round(S.cal);
   // Flash
-  const fl = document.getElementById('flash');
-  fl.style.opacity = '1'; setTimeout(() => fl.style.opacity = '0', 90);
-  // Float number
-  const rf = document.createElement('div');
-  rf.className = 'rfloat'; rf.style.cssText = 'left:50%;top:38%;';
-  rf.textContent = S.reps; document.body.appendChild(rf);
-  setTimeout(() => rf.remove(), 900);
+  const fl=document.getElementById('flash');
+  fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',90);
+  // Float
+  const rf=document.createElement('div');rf.className='rfloat';
+  rf.style.cssText='left:50%;top:36%;';rf.textContent=S.reps;
+  document.body.appendChild(rf);setTimeout(()=>rf.remove(),900);
   // Streak
-  if (S.streak >= 3) { const st = document.getElementById('stk'); st.textContent = `🔥 x${S.streak}`; st.classList.add('on'); }
-  // Form tip every 5 reps
-  if (S.reps % 5 === 0) { const ft = document.getElementById('ftip'); ft.textContent = MOVES[S.move].tip; ft.classList.add('on'); setTimeout(() => ft.classList.remove('on'), 2500); }
-  // Spawn new bubble
-  setTimeout(spawnBubble, 300);
-  // Badges
-  if (S.reps === 1 && !S.earnedBadges.includes('first_rep')) S.earnedBadges.push('first_rep');
-  if (S.streak === 5 && !S.earnedBadges.includes('first_stk')) S.earnedBadges.push('first_stk');
+  if(S.streak>=3){const st=document.getElementById('stk');st.textContent=`🔥 x${S.streak}`;st.classList.add('on');}
+  if(S.reps%5===0){const ft=document.getElementById('ftip');ft.textContent=MOVES[S.move].tip;ft.classList.add('on');setTimeout(()=>ft.classList.remove('on'),2500);}
+  setTimeout(spawnBubble,300);
+  if(S.reps===1&&!S.earnedBadges.includes('first_rep'))S.earnedBadges.push('first_rep');
+  if(S.streak===5&&!S.earnedBadges.includes('first_stk'))S.earnedBadges.push('first_stk');
 }
 
-// ══════════════════════════════════════════════════════════
-// SKELETON DRAW
-// ══════════════════════════════════════════════════════════
-const CONN = [
+// ═══ SKELETON ═══
+const CONN=[
   ['left_shoulder','right_shoulder'],['left_shoulder','left_elbow'],['left_elbow','left_wrist'],
   ['right_shoulder','right_elbow'],['right_elbow','right_wrist'],
   ['left_shoulder','left_hip'],['right_shoulder','right_hip'],['left_hip','right_hip'],
   ['left_hip','left_knee'],['left_knee','left_ankle'],
   ['right_hip','right_knee'],['right_knee','right_ankle'],
 ];
-function drawSkel(ctx, kps) {
-  const m = {};
-  kps.forEach(k => { if (k.score > 0.15) m[k.name] = k; });
+function drawSkel(ctx,kps){
+  const m={};kps.forEach(k=>{if(k.score>.15)m[k.name]=k;});
   ctx.save();
-  ctx.strokeStyle = 'rgba(0,255,65,.6)'; ctx.lineWidth = 2.5; ctx.shadowColor = '#00FF41'; ctx.shadowBlur = 8;
-  CONN.forEach(([a,b]) => { if(m[a]&&m[b]){ ctx.beginPath(); ctx.moveTo(m[a].x,m[a].y); ctx.lineTo(m[b].x,m[b].y); ctx.stroke(); }});
-  Object.values(m).forEach(k => { ctx.beginPath(); ctx.arc(k.x,k.y,4,0,Math.PI*2); ctx.fillStyle='#00FF41'; ctx.shadowBlur=10; ctx.fill(); });
-  // Highlight key joints in bright white
-  ['left_knee','right_knee','left_hip','right_hip'].forEach(name => {
-    if (m[name]) { ctx.beginPath(); ctx.arc(m[name].x,m[name].y,7,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fill(); }
+  ctx.strokeStyle='rgba(0,255,65,.6)';ctx.lineWidth=2.5;ctx.shadowColor='#00FF41';ctx.shadowBlur=8;
+  CONN.forEach(([a,b])=>{if(m[a]&&m[b]){ctx.beginPath();ctx.moveTo(m[a].x,m[a].y);ctx.lineTo(m[b].x,m[b].y);ctx.stroke();}});
+  Object.values(m).forEach(k=>{ctx.beginPath();ctx.arc(k.x,k.y,4,0,Math.PI*2);ctx.fillStyle='#00FF41';ctx.shadowBlur=10;ctx.fill();});
+  ['left_knee','right_knee','left_hip','right_hip','left_elbow','right_elbow'].forEach(name=>{
+    if(m[name]){ctx.beginPath();ctx.arc(m[name].x,m[name].y,7,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fill();}
   });
   ctx.restore();
 }
 
-// ══════════════════════════════════════════════════════════
-// RESULTS
-// ══════════════════════════════════════════════════════════
-function showResults() {
+// ═══ RESULTS ═══
+function showResults(){
   go('results');
-  const el = S.sessStart ? Math.round((Date.now()-S.sessStart)/1000) : S.selTime;
-  document.getElementById('rReps').textContent = S.reps;
-  document.getElementById('rKcal').textContent = Math.round(S.cal);
-  document.getElementById('rTime').textContent = el + 's';
-  document.getElementById('rh').textContent = S.reps>=20?'¡Imparable! 🔥':S.reps>=10?'¡Bien hecho! 💚':'Sigue mejorando 💪';
-  const lines = ['>  Analizando sesión...',`>  Reps: ${S.reps}`,`>  kcal: ${Math.round(S.cal)}`,`>  Tiempo: ${el}s`,'>  BUILD COMPLETE ✓'];
-  const box = document.getElementById('cbox'); box.innerHTML = '';
-  lines.forEach((l,i) => { const d = document.createElement('div'); d.className='cl2'; d.style.animationDelay=i*.2+'s'; d.textContent=l; box.appendChild(d); });
+  const el=S.sessStart?Math.round((Date.now()-S.sessStart)/1000):S.selTime;
+  document.getElementById('rReps').textContent=S.reps;
+  document.getElementById('rKcal').textContent=Math.round(S.cal);
+  document.getElementById('rTime').textContent=el+'s';
+  document.getElementById('rh').textContent=S.reps>=20?'¡Imparable! 🔥':S.reps>=10?'¡Bien hecho! 💚':'Sigue mejorando 💪';
+  const lines=['>  Analizando sesión...',`>  Reps: ${S.reps}`,`>  kcal: ${Math.round(S.cal)}`,`>  Tiempo: ${el}s`,'>  BUILD COMPLETE ✓'];
+  const box=document.getElementById('cbox');box.innerHTML='';
+  lines.forEach((l,i)=>{const d=document.createElement('div');d.className='cl2';d.style.animationDelay=i*.2+'s';d.textContent=l;box.appendChild(d);});
   genRain();
-  if (!S.earnedBadges.includes('first_sess')) S.earnedBadges.push('first_sess');
+  if(!S.earnedBadges.includes('first_sess'))S.earnedBadges.push('first_sess');
+}
+function genRain(){
+  const c=document.getElementById('mrain');c.innerHTML='';
+  for(let i=0;i<14;i++){const col=document.createElement('div');col.className='rcol';col.style.left=(i*7.3)+'%';col.style.animationDuration=(2+Math.random()*3)+'s';col.style.animationDelay=(Math.random()*2)+'s';let t='';for(let j=0;j<22;j++)t+=Math.round(Math.random())+'\n';col.textContent=t;c.appendChild(col);}
+}
+function renderBadges(){
+  document.getElementById('bgrid').innerHTML=BADGES.map(b=>{const e=S.earnedBadges.includes(b.id);return`<div class="bi${e?' e':''}"><div class="bic">${b.ic}</div><div class="bnm">${b.nm}</div>${!e?'<div class="blk">🔒</div>':''}</div>`;}).join('');
 }
 
-function genRain() {
-  const c = document.getElementById('mrain'); c.innerHTML = '';
-  for (let i=0;i<14;i++) { const col=document.createElement('div'); col.className='rcol'; col.style.left=(i*7.3)+'%'; col.style.animationDuration=(2+Math.random()*3)+'s'; col.style.animationDelay=(Math.random()*2)+'s'; let t=''; for(let j=0;j<22;j++) t+=Math.round(Math.random())+'\n'; col.textContent=t; c.appendChild(col); }
+// ═══ AUDIO ═══
+let _ac=null;
+function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();return _ac;}
+function playPop(){
+  try{const ctx=getAC(),o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
+  const f=Math.min(280+S.streak*20,860);o.frequency.setValueAtTime(f,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.6,ctx.currentTime+.09);
+  g.gain.setValueAtTime(.28,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.22);
+  o.type=S.streak>=10?'square':'sine';o.start(ctx.currentTime);o.stop(ctx.currentTime+.22);}catch(e){}
+}
+function playEnd(){
+  try{const ctx=getAC();[523,659,784,1046].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.16,ctx.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.12+.2);o.start(ctx.currentTime+i*.12);o.stop(ctx.currentTime+i*.12+.22);});}catch(e){}
 }
 
-function renderBadges() {
-  document.getElementById('bgrid').innerHTML = BADGES.map(b => {
-    const e = S.earnedBadges.includes(b.id);
-    return `<div class="bi${e?' e':''}"><div class="bic">${b.ic}</div><div class="bnm">${b.nm}</div>${!e?'<div class="blk">🔒</div>':''}</div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════════
-// AUDIO
-// ══════════════════════════════════════════════════════════
-let _ac = null;
-function getAC() { if (!_ac) _ac = new (window.AudioContext||window.webkitAudioContext)(); return _ac; }
-function playPop() {
-  try {
-    const ctx = getAC(), o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    const f = Math.min(280 + S.streak*20, 860);
-    o.frequency.setValueAtTime(f, ctx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(f*1.6, ctx.currentTime+.09);
-    g.gain.setValueAtTime(.28, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+.22);
-    o.type = S.streak>=10 ? 'square' : 'sine';
-    o.start(ctx.currentTime); o.stop(ctx.currentTime+.22);
-  } catch(e) {}
-}
-function playEnd() {
-  try {
-    const ctx = getAC();
-    [523,659,784,1046].forEach((f,i) => {
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value=f; o.type='sine';
-      g.gain.setValueAtTime(.16, ctx.currentTime+i*.12);
-      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+i*.12+.2);
-      o.start(ctx.currentTime+i*.12); o.stop(ctx.currentTime+i*.12+.22);
-    });
-  } catch(e) {}
-}
-
-console.log('AlignFit v1.5 — Angle-based validation 🟢');
+console.log('AlignFit v1.7 — Animated tutorial + Circle timer 🟢');
 </script>
 </body>
 </html>
