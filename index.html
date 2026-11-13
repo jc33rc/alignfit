@@ -222,6 +222,77 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+/* ============ v2.1 · pase visual: lenguaje de visor, jerarquía, identidad de código ============ */
+:root{--faint:rgba(255,255,255,.42);--card:#0E100F}
+.screen{background-image:radial-gradient(rgba(0,255,65,.055) 1px,transparent 1px);background-size:24px 24px}
+#s-session,#s-splash{background-image:none}
+/* Etiquetas estilo terminal en lugar de mayúsculas espaciadas */
+.lbl{text-transform:lowercase;letter-spacing:.3px;font-size:12px}
+.lbl::before{content:'// ';color:var(--gd);opacity:.8}
+.lbl.g::before{color:var(--g);opacity:1}
+/* Etiquetas rectangulares (tag de código) */
+.chip{border-radius:5px;padding:3px 8px}
+/* Tarjetas: las destacadas llevan esquinas de encuadre, como un visor */
+.card{border-radius:14px}
+.card.g,.tile.on,.opt.on,.hbox{border-radius:4px;border-color:rgba(0,255,65,.14);background:
+  linear-gradient(var(--g),var(--g)) 0 0/14px 2px no-repeat,linear-gradient(var(--g),var(--g)) 0 0/2px 14px no-repeat,
+  linear-gradient(var(--g),var(--g)) 100% 0/14px 2px no-repeat,linear-gradient(var(--g),var(--g)) 100% 0/2px 14px no-repeat,
+  linear-gradient(var(--g),var(--g)) 0 100%/14px 2px no-repeat,linear-gradient(var(--g),var(--g)) 0 100%/2px 14px no-repeat,
+  linear-gradient(var(--g),var(--g)) 100% 100%/14px 2px no-repeat,linear-gradient(var(--g),var(--g)) 100% 100%/2px 14px no-repeat,
+  var(--card)}
+.tile.on,.opt.on{background-color:transparent;box-shadow:inset 0 0 0 100px rgba(0,255,65,.06)}
+.hbox{background-color:transparent;box-shadow:inset 0 0 0 100px rgba(0,0,0,.6);border-color:transparent}
+.scan::before{display:none}
+/* Botones */
+.btn{border-radius:12px;box-shadow:0 0 0 1px rgba(0,255,65,.5),0 6px 24px -6px rgba(0,255,65,.55)}
+.btn.ghost{color:rgba(255,255,255,.78);border-color:rgba(255,255,255,.16);box-shadow:none}
+/* Navegación: indicador del activo */
+.nb{position:relative}
+.nb.on::before{content:'';position:absolute;top:-9px;left:50%;width:22px;height:2px;margin-left:-11px;background:var(--g);box-shadow:0 0 10px var(--g);border-radius:2px}
+/* Inicio: semana, reto y dúo nivel/mes */
+.week{display:flex;gap:6px;margin:0 0 14px}
+.wd{flex:1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--faint)}
+.wd i{display:block;height:6px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:6px}
+.wd.on i{background:var(--g);box-shadow:0 0 8px rgba(0,255,65,.7)}
+.wd.today{color:#fff}
+.wd.today i{outline:1px solid rgba(255,255,255,.5);outline-offset:2px}
+#daily-card{padding:18px}
+#daily-card .h2{font-size:21px;letter-spacing:-.2px}
+.duo{margin-top:10px}
+.duo .card{margin:0;padding:14px}
+.duo-v{font-family:var(--mono);font-size:19px;color:var(--g);margin:6px 0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.duo .muted{font-size:11px;margin-top:8px}
+/* Rutinas: duración como dato principal, nivel como barras de intensidad */
+.rcard{display:flex;gap:14px;align-items:center}
+.rc-main{flex:1;min-width:0}
+.rc-min{text-align:center;font-family:var(--mono);color:var(--g);border-left:1px solid var(--line);padding-left:14px;min-width:56px}
+.rc-min b{display:block;font-size:28px;font-weight:400;line-height:1}
+.rc-min small{font-size:10px;color:var(--faint)}
+.rcard .rmoves{margin:6px 0 10px}
+.rcard.locked .rc-min{color:var(--faint)}
+.rcard.locked .h2{color:rgba(255,255,255,.72)}
+.lvb{display:inline-flex;gap:2px;align-items:flex-end;height:10px;margin-right:2px}
+.lvb i{width:3px;background:rgba(255,255,255,.18);border-radius:1px}
+.lvb i:nth-child(1){height:4px}.lvb i:nth-child(2){height:7px}.lvb i:nth-child(3){height:10px}
+.lvb.l1 i:nth-child(-n+1),.lvb.l2 i:nth-child(-n+2),.lvb.l3 i{background:var(--g)}
+/* Sesión: velo superior y números legibles sobre la cámara */
+.hud-top{background:linear-gradient(rgba(0,0,0,.72),rgba(0,0,0,.35) 70%,transparent);padding-bottom:26px}
+.repsbig{font-size:88px;text-shadow:0 0 26px rgba(0,255,65,.65),0 3px 14px rgba(0,0,0,.9)}
+.exname{text-shadow:0 0 8px rgba(0,255,65,.6),0 1px 6px #000}
+.replbl,.blk{text-shadow:0 1px 6px #000;color:rgba(255,255,255,.75)}
+.pill{border-radius:6px}
+/* Final: un dato protagonista y tres de apoyo */
+.pgrid{grid-template-columns:repeat(3,1fr)}
+.pgrid .hero{grid-column:1/-1;padding:22px 10px}
+.pgrid .hero .pv{font-size:76px;text-shadow:0 0 30px rgba(0,255,65,.45)}
+.pgrid .card:not(.hero) .pv{font-size:22px}
+.pgrid .card:not(.hero){padding:14px 6px;border-radius:4px}
+/* Logros y listas */
+.bdg{border-radius:4px}
+.list{border-radius:14px}
+.cue i{opacity:.9}
+.wd{color:rgba(255,255,255,.55)}
+
 </style>
 <script data-lib="tfjs@4.10.0">/**
  * @license
@@ -298,7 +369,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 <!-- SPLASH -->
 <div class="screen active" id="s-splash" style="align-items:center;justify-content:center;gap:10px;background:#000">
   <div class="binary" id="splash-bin"></div>
-  <div class="logo" style="font-size:40px;position:relative">Align<span>Fit</span></div>
+  <div class="logo" id="splash-logo" style="font-size:40px;position:relative">Align<span>Fit</span></div>
   <div class="lbl" style="position:relative">AI form coach</div>
 </div>
 
@@ -346,6 +417,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
       <div><div class="muted" id="h-hello">Hola</div><div class="logo" style="font-size:24px;margin-top:2px">Align<span>Fit</span></div></div>
       <span class="chip" id="h-streak"><svg class="ic"><use href="#i-flame"/></svg> 0 días</span>
     </div>
+    <div class="week" id="h-week"></div>
 
     <div class="card" id="week-card" style="display:none;margin-bottom:10px">
       <div class="between" style="margin-bottom:12px"><span class="lbl">Tu semana pasada</span><button class="x" onclick="dismissWeek()" aria-label="Cerrar">&times;</button></div>
@@ -360,19 +432,12 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
       <div class="between"><span class="chip m" id="daily-obj"></span><span class="chip m" id="daily-time"></span></div>
     </div>
 
-    <div class="card" id="level-card">
-      <div class="between" style="margin-bottom:10px"><span class="h2">Nivel</span><span class="chip" id="lv-name">Principiante</span></div>
-      <div class="bar"><i id="lv-bar"></i></div>
-      <div class="muted" id="lv-txt" style="font-size:12px;margin-top:8px"></div>
+    <div class="grid2 duo">
+      <div class="card" id="level-card"><div class="lbl">nivel</div><div class="duo-v" id="lv-name">Principiante</div><div class="bar"><i id="lv-bar"></i></div><div class="muted" id="lv-txt"></div></div>
+      <div class="card" id="month-card"><div class="lbl" id="mo-title">reto del mes</div><div class="duo-v" id="mo-count">0/12</div><div class="bar"><i id="mo-bar"></i></div><div class="muted" id="mo-txt"></div></div>
     </div>
 
-    <div class="card" id="month-card">
-      <div class="between" style="margin-bottom:10px"><span class="h2" id="mo-title">Reto del mes</span><span class="chip m" id="mo-count">0/12</span></div>
-      <div class="bar"><i id="mo-bar"></i></div>
-      <div class="muted" id="mo-txt" style="font-size:12px;margin-top:8px">Entrena 12 días distintos este mes y gana su insignia.</div>
-    </div>
-
-    <div class="card" id="last-card">
+    <div class="card" id="last-card" style="margin-top:10px">
       <div class="between" style="margin-bottom:12px"><span class="lbl">Última sesión</span><span class="muted" id="last-name" style="font-size:12px"></span></div>
       <div class="stats">
         <div class="stat"><div class="sv" id="last-reps">0</div><div class="sl">Reps</div></div>
@@ -533,9 +598,9 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
     <div class="h1" id="ps-head" style="text-align:center;margin:6px 0 4px">¡Bien hecho!</div>
     <div class="muted" id="ps-sub" style="text-align:center;margin-bottom:18px"></div>
     <div class="pgrid">
-      <div class="card"><div class="pv" id="ps-reps">0</div><div class="sl">Reps</div></div>
+      <div class="card g hero"><div class="pv" id="ps-reps">0</div><div class="sl">Repeticiones</div></div>
       <div class="card"><div class="pv" id="ps-kcal" style="color:var(--o)">0</div><div class="sl">kcal</div></div>
-      <div class="card"><div class="pv" id="ps-active">0:00</div><div class="sl">Tiempo activo</div></div>
+      <div class="card"><div class="pv" id="ps-active">0:00</div><div class="sl">Activo</div></div>
       <div class="card"><div class="pv" id="ps-combo">0</div><div class="sl">Mejor racha</div></div>
     </div>
     <div class="card" id="ps-daily" style="display:none"></div>
@@ -1229,21 +1294,24 @@ function refHome(){
   document.getElementById('h-hello').textContent = 'Hola, ' + (S.user.name || '');
   document.getElementById('h-streak').innerHTML = ico('i-flame') + ' ' + (S.stats.streak || 0) + (S.stats.streak === 1 ? ' día' : ' días');
   renderWeek();
+  // Tira de la semana: días entrenados de lunes a domingo
+  const mon = mondayTs(Date.now()), tk = localDayKey();
+  document.getElementById('h-week').innerHTML = ['L','M','X','J','V','S','D'].map((d,i) => { const k = localDayKey(mon + i*DAY_MS); return '<div class="wd'+((S.stats.calLog[k] || 0) > 0 ? ' on' : '')+(k === tk ? ' today' : '')+'">'+d+'<i></i></div>'; }).join('');
   DAILY = getDaily();
   const r = DAILY.routine, done = S.stats.dailyDone[localDayKey()];
-  document.getElementById('daily-title').textContent = r.name + ' · ' + LEVEL[r.level].name;
+  document.getElementById('daily-title').textContent = r.name.includes(LEVEL[r.level].name) ? r.name : r.name + ' · ' + LEVEL[r.level].name;
   document.getElementById('daily-sub').textContent = [...new Set(r.blocks.map(b => M[b[0]].short))].slice(0,5).join(' · ') + (new Set(r.blocks.map(b => b[0])).size > 5 ? '…' : '');
   document.getElementById('daily-obj').innerHTML = ico(done ? 'i-check' : 'i-target') + ' ' + (done ? 'Cumplido hoy' : DAILY.objective.label);
   document.getElementById('daily-time').innerHTML = ico('i-clock') + ' ~' + fmtMin(routineSecs(r));
   const L = LEVEL[S.user.level || 'beginner'], lp = levelProgress();
   document.getElementById('lv-name').textContent = L.name;
   document.getElementById('lv-bar').style.width = lp.pct + '%';
-  document.getElementById('lv-txt').textContent = lp.txt;
+  document.getElementById('lv-txt').textContent = L.next ? lp.pct + '% hacia ' + LEVEL[L.next].name : 'Nivel máximo';
   const md = monthlyDays();
-  document.getElementById('mo-title').textContent = 'Reto de ' + MONTHS[new Date().getMonth()];
+  document.getElementById('mo-title').textContent = 'reto de ' + MONTHS[new Date().getMonth()];
   document.getElementById('mo-count').textContent = Math.min(md, MONTHLY_TARGET) + '/' + MONTHLY_TARGET + ' días';
   document.getElementById('mo-bar').style.width = Math.min(100, md/MONTHLY_TARGET*100) + '%';
-  document.getElementById('mo-txt').textContent = md >= MONTHLY_TARGET ? 'Reto del mes cumplido. La insignia ya es tuya.' : 'Entrena 12 días distintos este mes y gana su insignia.';
+  document.getElementById('mo-txt').textContent = md >= MONTHLY_TARGET ? 'Insignia del mes ganada' : 'Entrena 12 días y gana la insignia';
   const ls = S.stats.lastSession;
   document.getElementById('last-card').style.display = ls ? 'block' : 'none';
   if(ls){
@@ -1290,10 +1358,12 @@ function rendTrain(){
     return '<div class="sec lbl">'+g[0]+'</div>' + list.map(r => {
       const lock = !canRoutine(r), ids = [...new Set(r.blocks.map(b => b[0]))];
       const impact = r.blocks.some(b => M[b[0]].impact);
-      return '<div class="card tap rcard'+(lock ? '" style="opacity:.75' : '')+'" onclick="openRoutine(\''+r.id+'\')">'+
+      const lv = {beginner:1, intermediate:2, advanced:3}[r.level];
+      return '<div class="card tap rcard'+(lock ? ' locked' : '')+'" onclick="openRoutine(\''+r.id+'\')"><div class="rc-main">'+
         '<div class="between"><span class="h2">'+esc(r.name)+'</span><span class="chips">'+(lock ? '<span class="chip lock">'+ico('i-lock')+' Premium</span>' : (r.free ? '<span class="chip">Gratis</span>' : ''))+'</span></div>'+
-        '<div class="chips" style="margin-top:8px"><span class="chip m">'+ico('i-clock')+' '+fmtMin(routineSecs(r))+'</span><span class="chip m">'+r.blocks.length+' bloques</span><span class="chip m">'+LEVEL[r.level].name+'</span>'+(impact ? '<span class="chip imp">Impacto</span>' : '')+'</div>'+
-        '<div class="rmoves">'+ids.slice(0,6).map(i => esc(M[i].short)).join(' · ')+(ids.length > 6 ? ' · +'+(ids.length-6) : '')+'</div></div>';
+        '<div class="rmoves">'+ids.slice(0,5).map(i => esc(M[i].short)).join(' · ')+(ids.length > 5 ? ' · +'+(ids.length-5) : '')+'</div>'+
+        '<div class="chips"><span class="chip m"><span class="lvb l'+lv+'"><i></i><i></i><i></i></span>'+LEVEL[r.level].name+'</span><span class="chip m">'+r.blocks.length+' bloques</span>'+(impact ? '<span class="chip imp">Impacto</span>' : '')+'</div>'+
+        '</div><div class="rc-min"><b>'+Math.round(routineSecs(r)/60)+'</b><small>min</small></div></div>';
     }).join('');
   }).join('');
   // Movimiento libre: mosaico por familia
@@ -2055,6 +2125,16 @@ window.afBack = afBack;
   load();
   let bin = ''; for(let i = 0; i < 900; i++) bin += Math.round(Math.random());
   document.getElementById('splash-bin').textContent = bin;
+  // El logo se decodifica de binario a texto (una sola vez, al abrir)
+  const lg = document.getElementById('splash-logo'), word = 'AlignFit';
+  if(!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    let step = 0; const it = setInterval(() => {
+      step++; const shown = Math.floor(step/2.2);
+      const txt = word.split('').map((ch,i) => i < shown ? ch : Math.round(Math.random())).join('');
+      lg.innerHTML = esc(txt.slice(0,5)) + '<span>' + esc(txt.slice(5)) + '</span>';
+      if(shown >= word.length) clearInterval(it);
+    }, 45);
+  }
   applyPremium();
   setTimeout(() => {
     document.getElementById('s-splash').classList.remove('active');
