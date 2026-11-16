@@ -293,6 +293,24 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .cue i{opacity:.9}
 .wd{color:rgba(255,255,255,.55)}
 
+/* ============ v2.2 ============ */
+/* Título del ejercicio legible de lejos durante la sesión */
+#h-ex{text-wrap:balance;font-family:var(--sans);font-size:22px;font-weight:700;letter-spacing:0;text-transform:none;line-height:1.15;color:var(--g);text-shadow:0 0 14px rgba(0,255,65,.55),0 2px 8px #000}
+#h-blk{font-size:12px;margin-top:5px}
+.cdname{font-family:var(--sans);font-size:26px;font-weight:700;color:var(--g);text-shadow:0 0 16px rgba(0,255,65,.5);text-align:center;padding:0 20px}
+.cdcue,.gcue{font-size:15px;color:rgba(255,255,255,.85);margin:8px 0 6px;text-align:center;padding:0 24px;max-width:340px}
+.gcue{color:var(--g);margin-top:14px}
+.gcue:empty,.cdcue:empty{display:none}
+/* Sostenidos: la píldora de postura más grande */
+#holdp{font-size:15px;padding:9px 16px}
+/* Tutorial: cómo se hace y diferencia con el movimiento parecido */
+.how{margin-top:14px}
+.how p,.vs p{font-size:14px;line-height:1.55;color:rgba(255,255,255,.85);margin:8px 0 0}
+.vs{margin-top:12px;border-color:var(--line-g)}
+.vs-go{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--g)}
+/* Versión */
+.ver{text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);margin:22px 0 8px}
+
 </style>
 <script data-lib="tfjs@4.10.0">/**
  * @license
@@ -401,8 +419,8 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
     <div id="ob3" style="display:none">
       <div class="lbl g" style="margin-bottom:6px">Paso 3 de 3</div>
       <div class="h1" style="margin-bottom:18px">Así funciona</div>
-      <div class="card row"><div class="num">1</div><div class="muted" style="color:#fff">Apoya el teléfono en el piso, horizontal, contra algo firme.</div></div>
-      <div class="card row"><div class="num">2</div><div class="muted" style="color:#fff">Aléjate hasta que la app vea todo tu cuerpo. Si falta algo, te avisa.</div></div>
+      <div class="card row"><div class="num">1</div><div class="muted" style="color:#fff">Apoya el teléfono a la altura de la cadera (un escritorio o una mesa), horizontal y contra algo firme.</div></div>
+      <div class="card row"><div class="num">2</div><div class="muted" style="color:#fff">Aléjate hasta que la app vea todo tu cuerpo. En los ejercicios de piso, si no te ve, aléjate más o baja el teléfono al piso.</div></div>
       <div class="card row"><div class="num">3</div><div class="muted" style="color:#fff">Cada repetición completa explota un globito y suma. Tú pones el ritmo; el reloj, el tiempo.</div></div>
     </div>
   </div></div>
@@ -491,7 +509,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
     <div class="h1" id="ri-name" style="font-size:30px;margin:10px 0 6px">—</div>
     <div class="muted" id="ri-meta"></div>
     <div class="card" style="margin-top:16px"><div class="row" style="align-items:flex-start"><svg class="ic" style="color:var(--g);font-size:20px;margin-top:2px"><use href="#i-star"/></svg><div class="muted" id="ri-fact" style="color:#fff"></div></div></div>
-    <div class="note" id="ri-floor" style="display:none"><svg class="ic"><use href="#i-floor"/></svg><span>Incluye ejercicios en el piso. Cuando lleguen, ponte de lado al teléfono; el descanso te avisa.</span></div>
+    <div class="note" id="ri-floor" style="display:none"><svg class="ic"><use href="#i-floor"/></svg><span>Incluye ejercicios en el piso. Cuando lleguen, ponte de lado al teléfono y lejos, para que vea todo tu cuerpo; el descanso te avisa.</span></div>
     <div class="sec lbl">Bloques</div>
     <div class="card" id="ri-blocks" style="padding:6px 16px"></div>
   </div></div>
@@ -518,6 +536,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
     <div class="h1" id="tm-name" style="font-size:28px;margin:4px 0 10px">—</div>
     <div class="chips" id="tm-chips"></div>
     <div class="cues" id="tm-cues"></div>
+    <div class="card how" id="tm-how" style="display:none"></div>
     <div id="tm-notes"></div>
   </div></div>
   <div class="fixbtn">
@@ -571,10 +590,11 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
   <div class="ov" id="ov-guide">
     <div class="gtitle">UBÍCATE</div>
     <div class="gsub" id="g-sub"></div>
+    <div class="gcue" id="g-cue"></div>
     <div class="gchecks" id="g-checks"></div>
     <button class="btn sm" id="g-skip" style="margin-top:24px;display:none" onclick="guideSkip()">Empezar igual</button>
   </div>
-  <div class="ov" id="ov-count"><div class="exname" id="cd-name" style="margin-bottom:8px"></div><div class="cd" id="cd-num">3</div></div>
+  <div class="ov" id="ov-count"><div class="cdname" id="cd-name"></div><div class="cdcue" id="cd-cue"></div><div class="cd" id="cd-num">3</div></div>
   <div class="ov" id="ov-rest">
     <div class="lbl g"><svg class="ic"><use href="#i-pause"/></svg> Descanso</div>
     <div class="rest-t" id="rest-t">0:30</div>
@@ -649,6 +669,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
       <div class="list-row" onclick="toggleSound()" style="cursor:pointer"><svg class="ic" style="color:var(--g)"><use href="#i-sound"/></svg><span style="flex:1">Sonido</span><div class="toggle" id="snd"></div></div>
       <div class="list-row"><svg class="ic" style="color:var(--g)"><use href="#i-globe"/></svg><span style="flex:1">Idioma</span><span class="muted" style="font-size:12px">Español</span></div>
     </div>
+    <div class="ver" id="pf-ver"></div>
   </div></div>
 </div>
 
@@ -702,7 +723,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 <script>
 'use strict';
 /* =============================================================================
-   AlignFit v2.0
+   AlignFit v2.2
    Arquitectura portada de KinearFit: guardado local, rutinas por bloques, guía de
    encuadre, temporizador perimetral, progresión, freemium y puentes con la app nativa.
    La validación se organiza por FAMILIAS: cada familia tiene una medida principal y un
@@ -710,6 +731,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
    ============================================================================= */
 
 // ======== MEDIDAS DEL CUERPO (sobre los puntos de MoveNet, en píxeles del video) ========
+const AF_VERSION = '2.2';
 const CONF = 0.3;            // confianza mínima por punto
 let K = null;                // puntos actuales por nombre
 function P(n){ const k = K && K[n]; return (k && k.score >= CONF) ? k : null; }
@@ -823,7 +845,8 @@ const KNEE_AVG = () => knee('avg'), KNEE_MIN = () => knee('min'), HIP_AVG = () =
 const M = {
   // --- Piernas de pie: ángulo de rodilla (validado: abajo <110, arriba >155) ---
   squat:   {name:'Sentadilla', fam:'legs', met:5.0, free:true, metric:KNEE_AVG, rest:155, peak:110,
-            cues:['Pies al ancho de los hombros','Baja hasta explotar el globito','Rodillas en la dirección de los pies'], tip:'Rodillas hacia afuera'},
+            cues:['Manos en la nuca o brazos cruzados al pecho','Baja hasta explotar el globito','Pies al ancho de los hombros','Rodillas en la dirección de los pies'], tip:'Rodillas hacia afuera',
+            how:'Con las manos en la cintura la app pierde de vista tu cadera y no cuenta. Pon las manos en la nuca o cruza los brazos sobre el pecho: así la cadera queda despejada.'},
   sumo:    {name:'Sentadilla sumo', fam:'legs', met:5.0, metric:KNEE_AVG, rest:155, peak:110,
             cues:['Pies más anchos que los hombros, puntas afuera','Baja recto hasta explotar el globito','Empuja las rodillas hacia afuera'], tip:'Rodillas hacia afuera'},
   lunge:   {name:'Estocada', fam:'legs', met:4.5, free:true, metric:KNEE_AVG, rest:155, peak:115,
@@ -831,7 +854,8 @@ const M = {
   rlunge:  {name:'Estocada atrás', fam:'legs', met:4.5, metric:KNEE_AVG, rest:155, peak:115,
             cues:['Da un paso largo hacia atrás','Baja la rodilla de atrás cerca del piso','Vuelve al centro y alterna'], tip:'Torso derecho'},
   slunge:  {name:'Zancada lateral', fam:'legs', met:4.5, metric:KNEE_MIN, rest:155, peak:115,
-            cues:['Paso amplio hacia un lado','Dobla esa rodilla; la otra pierna queda recta','Vuelve al centro y alterna'], tip:'Cadera hacia atrás'},
+            cues:['Paso amplio hacia un lado','Dobla esa rodilla; la otra pierna queda recta','Vuelve al centro y alterna'], tip:'Cadera hacia atrás',
+            how:'De pie y de frente al teléfono, da un paso amplio hacia un lado con las puntas de los pies mirando al frente. Lleva la cadera hacia atrás y dobla la rodilla de la pierna que se movió; la otra queda estirada. Empuja con ese pie para volver al centro y repite hacia el otro lado. Cuenta cuando la rodilla doblada baja lo suficiente.'},
   jsquat:  {name:'Sentadilla con salto', fam:'legs', met:8.0, impact:true, metric:KNEE_AVG, rest:155, peak:110,
             cues:['Baja como en la sentadilla','Sube con un salto','Aterriza suave, con las rodillas flexionadas'], tip:'Aterriza suave'},
   squat_r: {name:'Sentadilla mano derecha arriba', short:'Sentadilla · mano der.', fam:'legs', met:5.0, metric:KNEE_AVG, rest:155, peak:110, mod:'handR',
@@ -846,7 +870,8 @@ const M = {
   sldl:    {name:'Peso muerto a una pierna', short:'P. muerto 1 pierna', fam:'hinge', met:5.5, metric:supportHip, rest:158, peak:140, mod:'oneLeg',
             cues:['Apóyate en una pierna; la otra va hacia atrás','Inclina el torso con la espalda recta','Alterna la pierna de apoyo'], tip:'Espalda recta'},
   bridge:  {name:'Puente de glúteo', fam:'hinge', orient:'side', gate:'bridge', met:3.5, metric:HIP_AVG, dir:1, rest:150, peak:165,
-            cues:['Boca arriba, rodillas dobladas, pies en el piso','Sube la cadera hasta alinear rodillas, cadera y hombros','Baja controlado'], tip:'Aprieta los glúteos arriba'},
+            cues:['Boca arriba, rodillas dobladas, pies en el piso','Sube la cadera hasta alinear rodillas, cadera y hombros','Baja controlado'], tip:'Aprieta los glúteos arriba',
+            how:'Acuéstate boca arriba, de lado al teléfono, con las rodillas dobladas y los pies apoyados cerca de los glúteos, al ancho de la cadera. Brazos estirados a los lados. Empuja con los talones y sube la cadera hasta que rodillas, cadera y hombros queden en línea; aprieta los glúteos arriba y baja despacio. Cuenta cuando la cadera llega a esa línea.'},
   // --- Empuje en el piso: ángulo de codo (validado: abajo <100, arriba >145) ---
   pushup:  {name:'Push-up', fam:'push', met:3.8, free:true, metric:ELB, rest:145, peak:100,
             cues:['Manos al ancho de los hombros','Baja el pecho hasta explotar el globito','Cuerpo recto de cabeza a talones'], tip:'Cuerpo recto'},
@@ -856,25 +881,33 @@ const M = {
             cues:['Haz la flexión completa','Arriba, toca el hombro contrario con una mano','Alterna la mano en cada repetición'], tip:'Cadera quieta al tocar'},
   // --- Sostener: solo corre el tiempo dentro del rango ---
   plank:   {name:'Plancha', fam:'hold', met:4.0, metric:HIP_AVG, band:[152,181], hintFn:'plank', safety:true,
-            cues:['Manos en el piso, brazos extendidos','Cuerpo recto de cabeza a talones','Abdomen activo, mantén la posición']},
+            cues:['De lado al teléfono, manos en el piso y brazos extendidos','Cuerpo recto de cabeza a talones','Abdomen activo, mantén la posición'],
+            how:'Ponte de lado al teléfono: así la app ve la línea de hombros, cadera y tobillos. De frente no puede medir si la cadera está alta o caída.'},
   plank_lift:{name:'Plancha con elevación de mano', short:'Plancha + mano', fam:'hold', kind:'holdAlt', met:4.5, metric:HIP_AVG, band:[152,181], hintFn:'plank', safety:true,
-            cues:['Plancha con brazos extendidos','Lleva una mano al círculo sin mover la cadera','Alterna la mano'], tip:'Alterna la mano'},
+            cues:['De lado al teléfono, plancha con brazos extendidos','Lleva una mano al círculo sin mover la cadera','Alterna la mano'], tip:'Alterna la mano',
+            how:'Ponte de lado al teléfono, en plancha con los brazos estirados. Despega una mano y llévala al círculo sin mover la cadera; vuelve a apoyarla y cambia de mano. Cada mano que llega con la plancha recta cuenta.'},
   splank:  {name:'Plancha lateral', fam:'hold', orient:'front', met:3.8, metric:()=>bodyLine('max'), band:[155,181], lowHint:'Sube la cadera', safety:true,
-            cues:['De lado sobre un antebrazo, de frente al teléfono','Hombros, cadera y tobillos en línea','Mantén; cambia de lado en el siguiente bloque']},
+            cues:['De lado sobre un antebrazo, de frente al teléfono','Hombros, cadera y tobillos en línea','Mantén; cambia de lado en el siguiente bloque'],
+            how:'Mirando al teléfono, apóyate sobre un antebrazo con el codo justo debajo del hombro. Piernas estiradas, un pie sobre el otro (o uno delante del otro si te cuesta el equilibrio). Sube la cadera hasta que hombros, cadera y tobillos formen una línea recta. El tiempo solo corre mientras la línea está recta. En las rutinas viene un bloque por cada lado.'},
   squat_hold:{name:'Sentadilla sostenida', short:'Sentadilla sost.', fam:'hold', orient:'front', gate:'up', met:4.0, metric:KNEE_AVG, band:[70,125], lowHint:'Sube un poco', highHint:'Baja más: muslos casi paralelos al piso', safety:true,
             cues:['Baja a media sentadilla','Muslos casi paralelos al piso','Mantén la posición sin apoyarte']},
   // --- Cardio alternado: rodilla sube; cuenta solo si alterna; izquierda + derecha = 1 rep ---
   skip:    {name:'Skipping', fam:'alt', met:8.0, impact:true, thr:0.7,
-            cues:['Trota en el sitio','Sube las rodillas a la altura de la cadera','Brazos activos, ritmo constante']},
+            cues:['Trota en el sitio','Sube las rodillas a la altura de la cadera','Brazos activos, ritmo constante'],
+            how:'Es correr sin moverte del sitio, subiendo cada rodilla hasta la altura de la cadera.', vs:['march','La marcha es caminar en el sitio: siempre hay un pie en el piso y la rodilla sube hasta media altura. El skipping tiene un pequeño salto entre pierna y pierna, la rodilla sube hasta la cadera y el ritmo es más rápido: más intenso y con impacto.']},
   march:   {name:'Marcha en el sitio', short:'Marcha', fam:'alt', met:3.5, thr:0.35,
-            cues:['Marcha sin moverte del sitio','Sube la rodilla y alterna las piernas','Espalda recta, brazos acompañan']},
+            cues:['Marcha sin moverte del sitio','Sube la rodilla y alterna las piernas','Espalda recta, brazos acompañan'],
+            how:'Es caminar sin moverte del sitio, subiendo la rodilla hasta media altura.', vs:['skip','En la marcha siempre hay un pie en el piso, sin salto, y basta con subir la rodilla a media altura. El skipping es trotar: hay un pequeño salto, la rodilla sube hasta la cadera y es más intenso. La marcha sirve para empezar o para bajar el pulso.']},
   kte:     {name:'Rodilla al codo', fam:'alt', met:4.0, thr:0.4, cross:true,
-            cues:['Manos detrás de la cabeza','Sube la rodilla hacia el codo contrario','Alterna los lados']},
+            cues:['Brazos cruzados al pecho o en guardia, codos a 90°','Sube la rodilla hacia el codo contrario','Alterna los lados'],
+            how:'Cuenta cuando la rodilla llega cerca del codo contrario: derecha con izquierdo, izquierda con derecho. Funciona mejor con los brazos cruzados sobre el pecho o en guardia, como en muay thai: codos doblados a 90° frente al cuerpo. Una subida de cada lado = 1 repetición.'},
   // --- Abrir y cerrar: muñecas sobre la cabeza + pies separados (en anchos de hombro) ---
   jacks:   {name:'Jumping jacks', fam:'jack', met:8.0, impact:true, open:1.35,
-            cues:['Salta abriendo piernas y brazos','Las manos se juntan arriba de la cabeza','Vuelve a cerrar y repite']},
+            cues:['Salta abriendo piernas y brazos','Las manos se juntan arriba de la cabeza','Vuelve a cerrar y repite'],
+            how:'De un salto abres las dos piernas a la vez y subes los brazos hasta juntar las manos sobre la cabeza; con otro salto cierras. Cuenta cada vez que abres y vuelves a cerrar.', vs:['stepjacks','Los step jacks hacen la misma figura sin saltar: abres una sola pierna hacia un lado mientras subes los brazos, vuelves al centro y cambias de pierna. Los jumping jacks abren las dos piernas con un salto: más intensos y con impacto.']},
   stepjacks:{name:'Step jacks', fam:'jack', met:4.5, open:1.2,
-            cues:['Abre una pierna al lado y sube los brazos','Vuelve al centro y cambia de pierna','Sin saltos: ideal para empezar']}
+            cues:['Abre una pierna al lado y sube los brazos','Vuelve al centro y cambia de pierna','Sin saltos: ideal para empezar'],
+            how:'Sin saltar, abres una pierna hacia un lado mientras subes los brazos sobre la cabeza; vuelves al centro y cambias de pierna. Cuenta cada vez que abres y vuelves a cerrar.', vs:['jacks','Los jumping jacks abren las dos piernas a la vez con un salto. Los step jacks abren una pierna por vez, siempre con un pie en el piso: misma figura, sin impacto. Ideales para empezar o si tienes vecinos abajo.']}
 };
 for(const id in M){
   const m = M[id], f = FAM[m.fam];
@@ -887,6 +920,12 @@ for(const id in M){
   if(m.mod) m.modDef = MOD[m.mod];
 }
 const ORIENT_TXT = {front:'De frente al teléfono', side:'De lado al teléfono'};
+// Dónde va el teléfono y cómo ubicarse (pantalla Ubícate)
+function setupTxt(m){
+  if(m.orient === 'front') return 'Teléfono a la altura de la cadera (escritorio o mesa). Aléjate hasta que se vea todo tu cuerpo, de la cabeza a los pies.';
+  const extra = m.fam === 'push' ? ' También funciona de frente.' : (m.fam === 'hold' ? ' De lado ve la línea de tu cuerpo.' : '');
+  return 'Ponte de lado al teléfono, lejos, hasta que se vea todo tu cuerpo.' + extra + ' Si no te ve, aléjate más o baja el teléfono al piso.';
+}
 const ORIENT_IC = {front:'i-stand', side:'i-floor'};
 
 // ======== RUTINAS (bloques [movimiento, segundos]; descanso entre bloques) ========
@@ -914,7 +953,7 @@ const ROUTINES = [
    blocks:[['kpushup',45],['plank',30],['bridge',60],['kpushup',45],['plank',30],['deadlift',60],['pushup',30],['plank',40],['bridge',60],['kpushup',45]]},
   {id:'fullbody_inter', name:'Full Body Intermedio', level:'intermediate', rest:25,
    fact:'Con una mano arriba, el core trabaja en cada repetición para mantenerte en equilibrio.',
-   blocks:[['squat_r',60],['pushup',45],['lunge',60],['plank_lift',45],['sldl',60],['skip',45],['squat_l',60],['tpushup',45],['slunge',60],['splank',30],['sumo_up',60],['skip',45],['bridge',60],['plank',45]]},
+   blocks:[['squat_r',60],['pushup',45],['lunge',60],['plank_lift',45],['sldl',60],['skip',45],['squat_l',60],['tpushup',45],['slunge',60],['splank',30,'L'],['splank',30,'R'],['sumo_up',60],['skip',45],['bridge',60],['plank',45]]},
   {id:'cardio_fuerza', name:'Cardio + Fuerza', level:'intermediate', rest:20,
    fact:'Intercalar cardio y fuerza mantiene el pulso alto durante toda la rutina.',
    blocks:[['skip',45],['squat',60],['jacks',45],['pushup',45],['skip',45],['slunge',60],['kte',45],['sumo',60],['jacks',45],['rlunge',60],['skip',45],['squat_hold',40],['jacks',45],['pushup',45]]},
@@ -923,19 +962,19 @@ const ROUTINES = [
    blocks:[['squat_r',60],['slunge',60],['sldl',60],['rlunge',60],['squat_hold',45],['sumo_up',60],['bridge',60],['squat_l',60],['lunge',60],['sldl',60],['squat_hold',45],['skip',45]]},
   {id:'core_inter', name:'Core Intermedio', level:'intermediate', rest:25,
    fact:'La plancha lateral trabaja los oblicuos, que la plancha frontal casi no toca.',
-   blocks:[['plank',45],['tpushup',45],['splank',30],['bridge',60],['plank_lift',45],['splank',30],['pushup',45],['plank',45],['bridge',60],['plank_lift',45],['deadlift',60],['sldl',60],['tpushup',45],['plank',45]]},
+   blocks:[['plank',45],['tpushup',45],['splank',30,'L'],['bridge',60],['plank_lift',45],['splank',30,'R'],['pushup',45],['plank',45],['bridge',60],['plank_lift',45],['deadlift',60],['sldl',60],['tpushup',45],['plank',45]]},
   {id:'express_inter', name:'Express Intermedio', level:'intermediate', cat:'rapida', rest:20,
-   fact:'Siete minutos de variaciones: todo el cuerpo trabaja para mantener el equilibrio.',
-   blocks:[['squat_r',60],['tpushup',45],['plank_lift',45],['skip',60],['sumo_up',60],['splank',30]]},
+   fact:'Ocho minutos de variaciones, cada una por los dos lados: todo el cuerpo trabaja para mantener el equilibrio.',
+   blocks:[['squat_r',30],['squat_l',30],['tpushup',45],['plank_lift',45],['skip',60],['sumo_up',60],['splank',20,'L'],['splank',20,'R']]},
   {id:'fullbody_avanzado', name:'Full Body Avanzado', level:'advanced', rest:20,
    fact:'Bloques largos y descansos cortos: aquí la resistencia importa tanto como la técnica.',
-   blocks:[['skip',60],['squat_r',75],['tpushup',60],['slunge',75],['plank_lift',60],['sldl',75],['jsquat',45],['pushup',60],['squat_l',75],['splank',40],['sumo_up',75],['jacks',45],['bridge',60],['plank',60],['skip',60]]},
+   blocks:[['skip',60],['squat_r',75],['tpushup',60],['slunge',75],['plank_lift',60],['sldl',75],['jsquat',45],['pushup',60],['squat_l',75],['splank',40,'L'],['splank',40,'R'],['sumo_up',75],['jacks',45],['bridge',60],['plank',60],['skip',60]]},
   {id:'cardio_intenso', name:'Cardio Intenso', level:'advanced', rest:15,
    fact:'Los saltos multiplican el gasto de energía; aterriza suave, con las rodillas en línea con los pies.',
    blocks:[['skip',60],['jsquat',45],['jacks',60],['tpushup',45],['skip',60],['slunge',60],['jacks',60],['jsquat',45],['kte',60],['pushup',45],['skip',60],['squat_hold',45],['jacks',60],['jsquat',45],['skip',60]]},
   {id:'fuerza_avanzada', name:'Fuerza Avanzada', level:'advanced', rest:25,
    fact:'Menos velocidad, más control: en la fuerza manda la técnica.',
-   blocks:[['sldl',75],['squat_r',75],['tpushup',60],['plank_lift',60],['slunge',75],['squat_l',75],['splank',45],['pushup',60],['sumo_up',75],['bridge',75],['squat_hold',60],['plank',60]]},
+   blocks:[['sldl',75],['squat_r',75],['tpushup',60],['plank_lift',60],['slunge',75],['squat_l',75],['splank',45,'L'],['splank',45,'R'],['pushup',60],['sumo_up',75],['bridge',75],['squat_hold',60],['plank',60]]},
   {id:'quemar', name:'Quemar calorías', level:'advanced', cat:'rapida', rest:10,
    fact:'Con descansos de 10 segundos el pulso no alcanza a bajar entre bloques.',
    blocks:[['jacks',45],['squat',45],['skip',45],['jsquat',40],['kte',45],['pushup',40],['jacks',45],['slunge',45],['skip',45],['jsquat',40],['jacks',45],['sumo',45],['skip',45],['rlunge',45],['jacks',45],['squat',45],['skip',45]]}
@@ -945,6 +984,9 @@ const LEVEL = {
   intermediate: {name:'Intermedio',   next:'advanced',     need:{s:15, r:1000}},
   advanced:     {name:'Avanzado'}
 };
+// Nombre del bloque con su lado (plancha lateral: un bloque por lado)
+const SIDE_TXT = {L:'lado izquierdo', R:'lado derecho'}, SIDE_SHORT = {L:'izq.', R:'der.'};
+function blockName(b, short){ const m = M[b[0]], n = short ? m.short : m.name; return b[2] ? n + ' · ' + (short ? SIDE_SHORT[b[2]] : SIDE_TXT[b[2]]) : n; }
 function routineSecs(r){ return r.blocks.reduce((a,b)=>a+b[1],0) + r.rest*(r.blocks.length-1); }
 function fmtT(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
 function fmtMin(s){ return Math.round(s/60) + ' min'; }
@@ -1399,7 +1441,7 @@ function showIntro(r, daily){
   document.getElementById('ri-floor').style.display = r.blocks.some(b => M[b[0]].orient === 'side') ? 'flex' : 'none';
   document.getElementById('ri-blocks').innerHTML = r.blocks.map((b,i) => {
     const m = M[b[0]];
-    return '<div class="brk"><span>'+(i+1)+'. '+esc(m.name)+' <span class="muted" style="font-size:11px">'+ico(ORIENT_IC[m.orient])+'</span></span><b>'+(m.kind === 'hold' ? b[1]+' s' : fmtT(b[1]))+'</b></div>';
+    return '<div class="brk"><span>'+(i+1)+'. '+esc(blockName(b))+' <span class="muted" style="font-size:11px">'+ico(ORIENT_IC[m.orient])+'</span></span><b>'+(m.kind === 'hold' ? b[1]+' s' : fmtT(b[1]))+'</b></div>';
   }).join('');
   goTo('intro');
 }
@@ -1443,7 +1485,11 @@ function openTutorialMove(id){
   let notes = '';
   if(m.safety) notes += '<div class="note">'+ico('i-warn')+'<span>Los ejercicios sostenidos elevan la presión arterial. Si tienes hipertensión o una condición cardíaca, consulta antes a tu médico.</span></div>';
   if(m.impact) notes += '<div class="note">'+ico('i-warn')+'<span>Movimiento con impacto. Aterriza suave; si te molestan las rodillas, cámbialo por su versión sin salto.</span></div>';
+  document.getElementById('tm-how').innerHTML = m.how ? '<div class="lbl">cómo se hace</div><p>'+esc(m.how)+'</p>' : '';
+  document.getElementById('tm-how').style.display = m.how ? 'block' : 'none';
+  if(m.vs) notes = '<div class="card vs tap" onclick="openTutorialMove(\''+m.vs[0]+'\')"><div class="lbl">diferencia con '+esc(M[m.vs[0]].name.toLowerCase())+'</div><p>'+esc(m.vs[1])+'</p><span class="vs-go">Ver '+esc(M[m.vs[0]].name)+' '+ico('i-chev')+'</span></div>' + notes;
   document.getElementById('tm-notes').innerHTML = notes;
+  document.querySelector('#s-tmove .scroll').scrollTo(0, 0);
   releaseVideo();
   tmUrl = videoUrl(id);
   const box = document.getElementById('tm-vbox'), v = document.getElementById('tm-video');
@@ -1543,9 +1589,8 @@ function seen(req){
 const REQ_TXT = {nose:'Cabeza', ankles:'Pies', shoulder:'Hombros', hip:'Cadera', knee:'Rodillas'};
 function showGuide(){
   const m = CUR.m;
-  document.getElementById('g-sub').textContent = m.orient === 'front'
-    ? 'Teléfono en el piso. Aléjate hasta que se vea todo tu cuerpo, de la cabeza a los pies.'
-    : 'Ponte de lado al teléfono. Que se vean tus hombros, cadera y rodillas.';
+  document.getElementById('g-sub').textContent = setupTxt(m);
+  document.getElementById('g-cue').textContent = m.cues[0];
   document.getElementById('g-skip').style.display = 'none';
   showOv('ov-guide');
 }
@@ -1561,7 +1606,8 @@ function guideSkip(){ beginCountdown(); }
 function beginCountdown(){
   if(SES.kind === 'tutorial'){ startBlock(); return; }
   SES.phase = 'count'; SES.cdLeft = 3;
-  document.getElementById('cd-name').textContent = CUR.m.name;
+  document.getElementById('cd-name').textContent = blockName(SES.blocks[SES.bi]);
+  document.getElementById('cd-cue').textContent = CUR.m.cues[0];
   document.getElementById('cd-num').textContent = '3'; showOv('ov-count'); beep(660, .12);
   clearInterval(tickTimer);
   tickTimer = setInterval(() => {
@@ -1575,14 +1621,14 @@ function beginCountdown(){
 let tickTimer = null;
 function prepBlockUI(){
   const m = CUR.m, isT = SES.kind === 'tutorial', b = SES.blocks[SES.bi];
-  document.getElementById('h-ex').textContent = m.short;
+  document.getElementById('h-ex').textContent = blockName(b, true).replace(/ · /g, '\u00a0· ');   // el punto no abre línea
   document.getElementById('h-blk').textContent = SES.kind === 'routine' ? 'Bloque ' + (SES.bi+1) + ' de ' + SES.blocks.length : '';
   const holdOnly = m.kind === 'hold';
   document.getElementById('h-reps').textContent = '0';
   document.getElementById('h-replbl').textContent = holdOnly ? 'SEGUNDOS' : 'REPS';
   document.getElementById('h-time').textContent = isT ? '—' : fmtT(b[1]);
   const nx = SES.blocks[SES.bi+1];
-  document.getElementById('next-txt').innerHTML = isT ? esc(m.cues[1]) : nx ? 'Sigue: <b>' + esc(M[nx[0]].name) + '</b>' : (SES.kind === 'routine' ? '<b>Último bloque</b>' : esc(m.cues[1]));
+  document.getElementById('next-txt').innerHTML = isT ? esc(m.cues[1]) : nx ? 'Sigue: <b>' + esc(blockName(nx)) + '</b>' : (SES.kind === 'routine' ? '<b>Último bloque</b>' : esc(m.cues[1]));
   document.getElementById('btn-end').textContent = isT ? 'Salir' : 'Terminar';
   document.getElementById('holdp').classList.remove('on');
   // Tutorial: banner con nombre, indicación y aciertos
@@ -1640,9 +1686,9 @@ function endBlock(){
   removeBubbles();
   if(SES.bi + 1 >= SES.blocks.length){ SES.completed = true; finishSession(); return; }
   SES.phase = 'rest'; SES.restLeft = SES.cfg.routine ? SES.cfg.routine.rest : 20;
-  const nm = M[SES.blocks[SES.bi+1][0]];
+  const nb = SES.blocks[SES.bi+1], nm = M[nb[0]];
   document.getElementById('rest-t').textContent = fmtT(SES.restLeft);
-  document.getElementById('rest-next').textContent = nm.name;
+  document.getElementById('rest-next').textContent = blockName(nb);
   document.getElementById('rest-orient').innerHTML = ico(ORIENT_IC[nm.orient],'color:var(--g);font-size:18px') + ' ' + ORIENT_TXT[nm.orient] + (nm.orient !== CUR.m.orient ? ' · <b style="color:var(--y)">cambia de posición</b>' : '');
   document.getElementById('rest-cue').textContent = nm.cues[0];
   document.getElementById('holdp').classList.remove('on');
@@ -1725,11 +1771,14 @@ function draw(t){
   const u = Math.min(cw, ch) / 400;
   // Esqueleto (en AlignFit sí va: no hay objetivos que golpear)
   if(K){
-    ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,255,65,.65)'; ctx.lineWidth = 2.6*u; ctx.shadowColor = '#00FF41'; ctx.shadowBlur = 8*u;
+    // En los sostenidos el esqueleto completo muestra la postura: verde = bien, rojo = corrige (se ve de lejos)
+    const holdNow = CUR && (SES.phase === 'work' || SES.phase === 'tut') && (CUR.m.kind === 'hold' || CUR.m.kind === 'holdAlt') && CUR.E.lastT != null;
+    const bad = holdNow && !CUR.E.lastGood, col = bad ? '#FF3B3B' : '#00FF41';
+    ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = holdNow ? col : 'rgba(0,255,65,.65)'; ctx.lineWidth = (holdNow ? 6 : 2.6)*u; ctx.shadowColor = col; ctx.shadowBlur = (holdNow ? 18 : 8)*u;
     for(const [a,b] of SKEL){ const A = P(a), B = P(b); if(A && B){ const pa = MAP(A), pb = MAP(B); ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke(); } }
-    ctx.fillStyle = '#00FF41';
-    for(const n of BODY_PTS){ const k = P(n); if(k){ const p = MAP(k); ctx.beginPath(); ctx.arc(p.x, p.y, 3.6*u, 0, Math.PI*2); ctx.fill(); } }
-    const nose = P('nose'); if(nose){ const p = MAP(nose); ctx.beginPath(); ctx.arc(p.x, p.y, 4.5*u, 0, Math.PI*2); ctx.fill(); }
+    ctx.fillStyle = col;
+    for(const n of BODY_PTS){ const k = P(n); if(k){ const p = MAP(k); ctx.beginPath(); ctx.arc(p.x, p.y, (holdNow ? 5.5 : 3.6)*u, 0, Math.PI*2); ctx.fill(); } }
+    const nose = P('nose'); if(nose){ const p = MAP(nose); ctx.beginPath(); ctx.arc(p.x, p.y, (holdNow ? 6.5 : 4.5)*u, 0, Math.PI*2); ctx.fill(); }
     if(CUR && (SES.phase === 'work' || SES.phase === 'tut')){
       ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*u;
       for(const n of KEY_JOINTS[CUR.m.fam]){ const k = P(n); if(k){ const p = MAP(k); ctx.beginPath(); ctx.arc(p.x, p.y, 7*u, 0, Math.PI*2); ctx.stroke(); } }
@@ -2017,6 +2066,7 @@ function rendBadges(){
 
 // ---- Perfil ----
 function refProfile(){
+  document.getElementById('pf-ver').textContent = 'AlignFit v' + AF_VERSION;
   const u = S.user, st = S.stats;
   document.getElementById('pf-av').textContent = (u.name || 'A').charAt(0).toUpperCase();
   document.getElementById('pf-name').textContent = u.name || '—';
