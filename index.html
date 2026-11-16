@@ -311,6 +311,17 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 /* Versión */
 .ver{text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);margin:22px 0 8px}
 
+/* ============ v2.3 ============ */
+/* Contador de repeticiones más grande: se usa para confirmar desde lejos */
+#h-reps{font-size:124px;line-height:.9;margin-top:4px}
+#tb-count{font-size:96px!important;line-height:.95}
+#pb-canvas{max-height:64vh;aspect-ratio:9/16;border-radius:16px}
+/* Teléfono horizontal: el contador va arriba a la izquierda para no tapar la cabeza de la persona */
+@media (orientation:landscape) and (max-height:520px){
+  .hud-top .hcenter{flex:0 0 auto;text-align:left;margin-right:auto;padding-left:16px}
+  #h-reps{font-size:112px}
+}
+
 </style>
 <script data-lib="tfjs@4.10.0">/**
  * @license
@@ -723,7 +734,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 <script>
 'use strict';
 /* =============================================================================
-   AlignFit v2.2
+   AlignFit v2.3
    Arquitectura portada de KinearFit: guardado local, rutinas por bloques, guía de
    encuadre, temporizador perimetral, progresión, freemium y puentes con la app nativa.
    La validación se organiza por FAMILIAS: cada familia tiene una medida principal y un
@@ -731,7 +742,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
    ============================================================================= */
 
 // ======== MEDIDAS DEL CUERPO (sobre los puntos de MoveNet, en píxeles del video) ========
-const AF_VERSION = '2.2';
+const AF_VERSION = '2.3';
 const CONF = 0.3;            // confianza mínima por punto
 let K = null;                // puntos actuales por nombre
 function P(n){ const k = K && K[n]; return (k && k.score >= CONF) ? k : null; }
@@ -849,12 +860,12 @@ const M = {
             how:'Con las manos en la cintura la app pierde de vista tu cadera y no cuenta. Pon las manos en la nuca o cruza los brazos sobre el pecho: así la cadera queda despejada.'},
   sumo:    {name:'Sentadilla sumo', fam:'legs', met:5.0, metric:KNEE_AVG, rest:155, peak:110,
             cues:['Pies más anchos que los hombros, puntas afuera','Baja recto hasta explotar el globito','Empuja las rodillas hacia afuera'], tip:'Rodillas hacia afuera'},
-  lunge:   {name:'Estocada', fam:'legs', met:4.5, free:true, metric:KNEE_AVG, rest:155, peak:115,
+  lunge:   {name:'Estocada', light:true, how:'De frente al teléfono, da un paso largo hacia adelante y baja hasta que la rodilla de atrás quede cerca del piso; vuelve y alterna la pierna. Necesita buena luz de frente y las piernas bien separadas: si la luz viene de un lado, la pierna del otro lado queda en sombra y la app la ve mal.', fam:'legs', met:4.5, free:true, metric:KNEE_AVG, rest:155, peak:115,
             cues:['Da un paso largo hacia adelante','Baja hasta explotar el globito','Alterna la pierna en cada repetición'], tip:'Torso derecho'},
-  rlunge:  {name:'Estocada atrás', fam:'legs', met:4.5, metric:KNEE_AVG, rest:155, peak:115,
+  rlunge:  {name:'Estocada atrás', light:true, how:'De frente al teléfono, da un paso largo hacia atrás y baja la rodilla de atrás cerca del piso; vuelve al centro y alterna. Necesita buena luz de frente y las piernas bien separadas, para que la app vea las dos rodillas.', fam:'legs', met:4.5, metric:KNEE_AVG, rest:155, peak:115,
             cues:['Da un paso largo hacia atrás','Baja la rodilla de atrás cerca del piso','Vuelve al centro y alterna'], tip:'Torso derecho'},
   slunge:  {name:'Zancada lateral', fam:'legs', met:4.5, metric:KNEE_MIN, rest:155, peak:115,
-            cues:['Paso amplio hacia un lado','Dobla esa rodilla; la otra pierna queda recta','Vuelve al centro y alterna'], tip:'Cadera hacia atrás',
+            cues:['Paso amplio hacia un lado','Dobla esa rodilla; la otra pierna queda recta','Vuelve al centro y alterna'], tip:'Cadera hacia atrás', light:true,
             how:'De pie y de frente al teléfono, da un paso amplio hacia un lado con las puntas de los pies mirando al frente. Lleva la cadera hacia atrás y dobla la rodilla de la pierna que se movió; la otra queda estirada. Empuja con ese pie para volver al centro y repite hacia el otro lado. Cuenta cuando la rodilla doblada baja lo suficiente.'},
   jsquat:  {name:'Sentadilla con salto', fam:'legs', met:8.0, impact:true, metric:KNEE_AVG, rest:155, peak:110,
             cues:['Baja como en la sentadilla','Sube con un salto','Aterriza suave, con las rodillas flexionadas'], tip:'Aterriza suave'},
@@ -922,7 +933,7 @@ for(const id in M){
 const ORIENT_TXT = {front:'De frente al teléfono', side:'De lado al teléfono'};
 // Dónde va el teléfono y cómo ubicarse (pantalla Ubícate)
 function setupTxt(m){
-  if(m.orient === 'front') return 'Teléfono a la altura de la cadera (escritorio o mesa). Aléjate hasta que se vea todo tu cuerpo, de la cabeza a los pies.';
+  if(m.orient === 'front') return 'Teléfono a la altura de la cadera (escritorio o mesa). Aléjate hasta que se vea todo tu cuerpo, de la cabeza a los pies.' + (m.light ? ' Busca buena luz de frente y separa bien las piernas.' : '');
   const extra = m.fam === 'push' ? ' También funciona de frente.' : (m.fam === 'hold' ? ' De lado ve la línea de tu cuerpo.' : '');
   return 'Ponte de lado al teléfono, lejos, hasta que se vea todo tu cuerpo.' + extra + ' Si no te ve, aléjate más o baja el teléfono al piso.';
 }
@@ -1728,6 +1739,14 @@ function setTrk(){
   el.classList.add('on');
   el.textContent = !K || vis < 0.2 ? '· Buscando tu cuerpo' : vis < 0.45 ? '· Seguimiento parcial' : '✓ Te veo';
 }
+// Estocadas: si la app ve una pierna mucho peor que la otra, casi siempre es luz de lado
+function legLightMsg(){
+  const sc = s => Math.min(K[s+'_knee'] ? K[s+'_knee'].score : 0, K[s+'_ankle'] ? K[s+'_ankle'].score : 0);
+  const l = sc('left'), r = sc('right');
+  if(l < 0.35 && r - l > 0.25) return 'Más luz de frente: veo mal tu pierna izquierda';
+  if(r < 0.35 && l - r > 0.25) return 'Más luz de frente: veo mal tu pierna derecha';
+  return null;
+}
 // Aviso de posición: no bloquea y solo cambia si el estado dura 1,5 s
 function positionCheck(t){
   const m = CUR.m; let msg = null;
@@ -1739,11 +1758,12 @@ function positionCheck(t){
     else if(m.orient === 'front'){
       const n = P('nose'), a = P('left_ankle') || P('right_ankle'), vh = VID().videoHeight || 480;
       if(n && a && (a.y - n.y) / vh < 0.33) msg = 'Acércate un poco';
+      else if(m.light) msg = legLightMsg();
     }
   }
   if(msg !== SES.posBad){ SES.posBad = msg; SES.posSince = t; }
   const el = document.getElementById('notice');
-  if(msg && t - SES.posSince > 1500){ el.textContent = msg; el.classList.add('on'); }
+  if(msg && t - SES.posSince > (msg.startsWith('Más luz') ? 2000 : 1500)){ el.textContent = msg; el.classList.add('on'); }
   else if(!msg) el.classList.remove('on');
 }
 
@@ -1769,21 +1789,13 @@ function draw(t){
   ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(0,0,cw,ch);
   MAP = k => ({x: cw - (ox + k.x*sc), y: oy + k.y*sc});
   const u = Math.min(cw, ch) / 400;
-  // Esqueleto (en AlignFit sí va: no hay objetivos que golpear)
+  // Esqueleto Servo (en AlignFit sí va: no hay objetivos que golpear)
   if(K){
-    // En los sostenidos el esqueleto completo muestra la postura: verde = bien, rojo = corrige (se ve de lejos)
-    const holdNow = CUR && (SES.phase === 'work' || SES.phase === 'tut') && (CUR.m.kind === 'hold' || CUR.m.kind === 'holdAlt') && CUR.E.lastT != null;
-    const bad = holdNow && !CUR.E.lastGood, col = bad ? '#FF3B3B' : '#00FF41';
-    ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = holdNow ? col : 'rgba(0,255,65,.65)'; ctx.lineWidth = (holdNow ? 6 : 2.6)*u; ctx.shadowColor = col; ctx.shadowBlur = (holdNow ? 18 : 8)*u;
-    for(const [a,b] of SKEL){ const A = P(a), B = P(b); if(A && B){ const pa = MAP(A), pb = MAP(B); ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke(); } }
-    ctx.fillStyle = col;
-    for(const n of BODY_PTS){ const k = P(n); if(k){ const p = MAP(k); ctx.beginPath(); ctx.arc(p.x, p.y, (holdNow ? 5.5 : 3.6)*u, 0, Math.PI*2); ctx.fill(); } }
-    const nose = P('nose'); if(nose){ const p = MAP(nose); ctx.beginPath(); ctx.arc(p.x, p.y, (holdNow ? 6.5 : 4.5)*u, 0, Math.PI*2); ctx.fill(); }
-    if(CUR && (SES.phase === 'work' || SES.phase === 'tut')){
-      ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*u;
-      for(const n of KEY_JOINTS[CUR.m.fam]){ const k = P(n); if(k){ const p = MAP(k); ctx.beginPath(); ctx.arc(p.x, p.y, 7*u, 0, Math.PI*2); ctx.stroke(); } }
-    }
-    ctx.restore();
+    // En los sostenidos el cuerpo completo muestra la postura: verde = bien, rojo = corrige (se ve de lejos)
+    const live = CUR && (SES.phase === 'work' || SES.phase === 'tut');
+    const holdNow = live && (CUR.m.kind === 'hold' || CUR.m.kind === 'holdAlt') && CUR.E.lastT != null;
+    const col = holdNow && !CUR.E.lastGood ? '#FF3B3B' : '#00FF41';
+    drawServo(ctx, col, live ? KEY_JOINTS[CUR.m.fam] : [], holdNow);
     // Círculos objetivo de los modificadores (verde = bien, rojo = falta)
     if(CUR && (SES.phase === 'work' || SES.phase === 'tut')){
       const tg = modTarget(), tl = torso();
@@ -1798,6 +1810,85 @@ function draw(t){
     }
   }
   drawRing(ctx, cw, ch, u);
+}
+// ======== ESQUELETO SERVO ========
+// Cuerpo robótico: placas biseladas, columna de vértebras, casco con visor y rótulas.
+// Las medidas son del diseño (torso = 127 unidades) y se escalan al torso de la persona en pantalla.
+const SV_LIMBS = [['left_shoulder','left_elbow',1],['left_elbow','left_wrist',0],['right_shoulder','right_elbow',1],['right_elbow','right_wrist',0],
+  ['left_hip','left_knee',1],['left_knee','left_ankle',0],['right_hip','right_knee',1],['right_knee','right_ankle',0]];
+const SV_NB = {left_knee:['left_hip','left_ankle'], right_knee:['right_hip','right_ankle'], left_elbow:['left_shoulder','left_wrist'],
+  right_elbow:['right_shoulder','right_wrist'], left_hip:['left_shoulder','left_knee'], right_hip:['right_shoulder','right_knee']};
+const SV_HEAD = ['nose','left_eye','right_eye','left_ear','right_ear'];
+function svRGBA(c, al){ const n = parseInt(c.slice(1), 16); return 'rgba('+(n>>16)+','+(n>>8&255)+','+(n&255)+','+al+')'; }
+function svAxis(a, b){ const dx = b.x-a.x, dy = b.y-a.y, L = Math.hypot(dx, dy) || 1, u = {x:dx/L, y:dy/L}; return {u, n:{x:-u.y, y:u.x}, L}; }
+function svAt(p, v, k){ return {x:p.x + v.x*k, y:p.y + v.y*k}; }
+function svPoly(ctx, pts){ ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.closePath(); }
+// Placa biselada de a hacia b (anchos w1→w2, separada "gap" de cada articulación, bisel "ch")
+function svPlate(ctx, a, b, w1, w2, gap, ch, G){
+  const {u, n, L} = svAxis(a, b); if(L <= 2*gap + 2*ch + 1) return;
+  const A = svAt(a, u, gap), B = svAt(b, u, -gap);
+  svPoly(ctx, [A, svAt(svAt(A,u,ch),n,w1/2), svAt(svAt(B,u,-ch),n,w2/2), B, svAt(svAt(B,u,-ch),n,-w2/2), svAt(svAt(A,u,ch),n,-w1/2)]);
+  ctx.shadowBlur = 0; ctx.fill(); ctx.shadowBlur = G; ctx.stroke();
+  const s = ctx.strokeStyle, lw = ctx.lineWidth; ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = lw*.55;
+  ctx.beginPath(); const p1 = svAt(A,u,ch*1.6), p2 = svAt(B,u,-ch*1.6); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  ctx.strokeStyle = s; ctx.lineWidth = lw;
+}
+// Rótula: esfera con brillo; la articulación que valida va en blanco
+function svBall(ctx, p, r, col, key, G){
+  const g = ctx.createRadialGradient(p.x - r*.35, p.y - r*.35, r*.1, p.x, p.y, r);
+  g.addColorStop(0, key ? '#fff' : svRGBA(col, .95)); g.addColorStop(1, key ? svRGBA(col, .9) : svRGBA(col, .25));
+  ctx.fillStyle = g; ctx.strokeStyle = key ? '#fff' : col; ctx.shadowColor = key ? '#fff' : col;
+  ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2); ctx.shadowBlur = 0; ctx.fill(); ctx.shadowBlur = key ? G*1.6 : G; ctx.stroke();
+}
+function drawServo(ctx, col, keys, strong){
+  const Q = {}; for(const nm of BODY_PTS.concat(SV_HEAD)){ const k = P(nm); Q[nm] = k ? MAP(k) : null; }
+  const ms = mid(Q.left_shoulder, Q.right_shoulder), mh = mid(Q.left_hip, Q.right_hip);
+  // Escala: el torso de la persona en pantalla; si falta, el ancho de hombros o un brazo
+  let ref = null;
+  if(Q.left_shoulder && Q.right_shoulder && Q.left_hip && Q.right_hip) ref = dist(ms, mh) / 127;
+  else if(ms && mh) ref = dist(ms, mh) / 127;
+  else if(Q.left_shoulder && Q.right_shoulder) ref = dist(Q.left_shoulder, Q.right_shoulder) / 70;
+  if(!ref || !isFinite(ref)) return;
+  const k = Math.max(.3, Math.min(6, ref)), G = Math.max(10*k, 6*DPR);
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = col; ctx.shadowColor = col; ctx.lineWidth = Math.max(1.4*k, 1.4*DPR); ctx.fillStyle = svRGBA(col, strong ? .32 : .22);
+  // Eje que une las vértebras
+  if(ms && mh){ const lw = ctx.lineWidth; ctx.lineWidth = lw*1.15; ctx.shadowBlur = G; ctx.beginPath(); ctx.moveTo(ms.x, ms.y); ctx.lineTo(mh.x, mh.y); ctx.stroke(); ctx.lineWidth = lw; }
+  if(Q.left_shoulder && Q.right_shoulder) svPlate(ctx, Q.left_shoulder, Q.right_shoulder, 7*k, 7*k, 4*k, 3*k, G);
+  if(Q.left_hip && Q.right_hip) svPlate(ctx, Q.left_hip, Q.right_hip, 10*k, 10*k, 4*k, 3*k, G);
+  if(ms && mh){ const {u, L} = svAxis(ms, mh), seg = L/5;
+    for(let i = 0; i < 5; i++){ const w = (14 - i*1.1)*k; svPlate(ctx, svAt(ms,u,seg*i + 2*k), svAt(ms,u,seg*(i+1) - 2*k), w, w - k, 0, 2.5*k, G); } }
+  for(const [a, b, up] of SV_LIMBS) if(Q[a] && Q[b]) svPlate(ctx, Q[a], Q[b], (up ? 13 : 10)*k, (up ? 10 : 7)*k, 6*k, 4*k, G);
+  // Cuello y casco: el casco se orienta hacia el cuello; el visor mira hacia donde mira la cara
+  const nose = Q.nose;
+  if(nose && ms){
+    const {u, L} = svAxis(nose, ms);
+    if(L > 22*k) svPlate(ctx, svAt(nose, u, 17*k), svAt(ms, u, -3*k), 7*k, 7*k, 0, 2*k, G);
+    const wd = 30*k, ht = 34*k;
+    ctx.save(); ctx.translate(nose.x, nose.y); ctx.rotate(Math.atan2(u.y, u.x) - Math.PI/2);
+    ctx.beginPath(); ctx.moveTo(-wd/2, -ht/2 + 6*k); ctx.quadraticCurveTo(-wd/2, -ht/2, -wd/2 + 8*k, -ht/2); ctx.lineTo(wd/2 - 8*k, -ht/2); ctx.quadraticCurveTo(wd/2, -ht/2, wd/2, -ht/2 + 6*k);
+    ctx.lineTo(wd/2, ht/2 - 9*k); ctx.lineTo(wd/2 - 7*k, ht/2); ctx.lineTo(-wd/2 + 7*k, ht/2); ctx.lineTo(-wd/2, ht/2 - 9*k); ctx.closePath();
+    ctx.shadowBlur = 0; ctx.fill(); ctx.shadowBlur = G; ctx.stroke(); ctx.restore();
+    const eyes = mid(Q.left_eye, Q.right_eye), ears = mid(Q.left_ear, Q.right_ear);
+    const side = eyes && ears && dist(eyes, ears) > 10*k;
+    ctx.save(); ctx.fillStyle = '#fff'; ctx.shadowColor = col; ctx.shadowBlur = G*1.4;
+    if(side){ const f = svAxis(ears, eyes), c = svAt(nose, f.u, wd/2 - 3*k); ctx.translate(c.x, c.y); ctx.rotate(Math.atan2(f.n.y, f.n.x)); ctx.beginPath(); ctx.roundRect(-8*k, -2.5*k, 16*k, 5*k, 2.5*k); ctx.fill(); }
+    else { ctx.translate(nose.x, nose.y); ctx.rotate(Math.atan2(u.y, u.x) - Math.PI/2); ctx.beginPath(); ctx.roundRect(-wd/2 + 4*k, -4*k, wd - 8*k, 5*k, 2.5*k); ctx.fill(); }
+    ctx.restore();
+  }
+  // Rótulas
+  if(ms) svBall(ctx, ms, 3.5*k, col, false, G);
+  if(mh) svBall(ctx, mh, 3.5*k, col, false, G);
+  for(const nm of BODY_PTS) if(Q[nm]) svBall(ctx, Q[nm], (keys.includes(nm) ? 7 : 5)*k, col, keys.includes(nm), G);
+  // Arco blanco en la articulación que valida: dibuja el ángulo que se está midiendo
+  ctx.strokeStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = G*1.2; ctx.lineWidth = Math.max(2.4*k, 2*DPR);
+  for(const nm of keys){
+    const nb = SV_NB[nm], p = Q[nm]; if(!nb || !p || !Q[nb[0]] || !Q[nb[1]]) continue;
+    const a1 = Math.atan2(Q[nb[0]].y - p.y, Q[nb[0]].x - p.x), a2 = Math.atan2(Q[nb[1]].y - p.y, Q[nb[1]].x - p.x);
+    let d = a2 - a1; while(d > Math.PI) d -= 2*Math.PI; while(d < -Math.PI) d += 2*Math.PI;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 14*k, a1, a1 + d, d < 0); ctx.stroke();
+  }
+  ctx.restore();
 }
 // Reloj perimetral (portado de KinearFit): se llena por el borde mientras pasa el bloque
 function drawRing(ctx, w, h, u){
@@ -1875,7 +1966,7 @@ function finishSession(){
   const dl = st.dayLog[day] || {r:0, s:0}; dl.r += reps; dl.s++; st.dayLog[day] = dl;
   for(const id in s.perMove){ st.moveReps[id] = (st.moveReps[id] || 0) + s.perMove[id].reps + s.perMove[id].hold; if(!st.movesTried.includes(id)) st.movesTried.push(id); }
   st.comboBest = Math.max(st.comboBest || 0, s.comboMax);
-  st.lastSession = {reps, cal, active:s.active, name:s.cfg.name, hold:s.hold};
+  st.lastSession = {reps, cal, active:s.active, name:s.cfg.name, hold:s.hold, combo:s.comboMax, routine:!!s.cfg.routine};
   // Racha con escudo: un día perdido no la borra si queda escudo; se gana uno cada 7 días (tope 2)
   const today = new Date().toDateString(), lastDay = localStorage.getItem('af2_last');
   const yest = new Date(now - DAY_MS).toDateString(), two = new Date(now - 2*DAY_MS).toDateString();
@@ -2099,32 +2190,53 @@ let pbStream = null, pbRaf = null, pbShot = false;
 async function openBooth(){
   const bo = document.getElementById('booth'); bo.classList.add('on');
   document.getElementById('pb-row1').style.display = 'flex'; document.getElementById('pb-row2').style.display = 'none';
-  document.getElementById('pb-hint').textContent = ''; pbShot = false;
+  document.getElementById('pb-hint').textContent = 'Acomódate. Al capturar hay 3 segundos.'; pbShot = false;
+  const c = document.getElementById('pb-canvas'); c.width = 1080; c.height = 1920;   // 9:16 completo: no recorta el cuerpo
+  const loopPb = () => { if(!pbShot) drawBooth(); pbRaf = requestAnimationFrame(loopPb); };
   try{
-    pbStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:720}, height:{ideal:960}}, audio:false});
+    pbStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:1080}, height:{ideal:1920}}, audio:false});
     const v = document.getElementById('pb-video'); v.srcObject = pbStream; await v.play().catch(()=>{});
-    const loopPb = () => { if(!pbShot) drawBooth(); pbRaf = requestAnimationFrame(loopPb); }; loopPb();
-  }catch(e){ document.getElementById('pb-hint').textContent = 'Sin acceso a la cámara.'; }
+  }catch(e){ document.getElementById('pb-hint').textContent = 'Sin acceso a la cámara: puedes compartir solo los datos.'; }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(loopPb).catch(loopPb); else loopPb();
 }
+// Tarjeta 9:16. Los datos van en una columna a la izquierda y dentro de la franja central
+// (0,235H a 0,765H), que es lo que sobrevive cuando un feed recorta la imagen a cuadrado.
 function drawBooth(){
-  const v = document.getElementById('pb-video'), c = document.getElementById('pb-canvas');
-  const W = 720, H = 960; if(c.width !== W){ c.width = W; c.height = H; }
-  const x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0,0,W,H);
+  const v = document.getElementById('pb-video'), c = document.getElementById('pb-canvas'), W = c.width, H = c.height;
+  const x = c.getContext('2d'); x.save(); x.fillStyle = '#050505'; x.fillRect(0,0,W,H);
   if(v.videoWidth){
     const sc = Math.max(W/v.videoWidth, H/v.videoHeight), dw = v.videoWidth*sc, dh = v.videoHeight*sc;
     x.save(); x.translate(W,0); x.scale(-1,1); x.drawImage(v, (W-dw)/2, (H-dh)/2, dw, dh); x.restore();
   }
-  const g = x.createLinearGradient(0, H*.55, 0, H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.85)'); x.fillStyle = g; x.fillRect(0,0,W,H);
-  x.strokeStyle = '#00FF41'; x.lineWidth = 8; x.shadowColor = '#00FF41'; x.shadowBlur = 18; x.strokeRect(10,10,W-20,H-20); x.shadowBlur = 0;
-  x.font = '44px "Share Tech Mono", monospace'; x.fillStyle = '#00FF41'; x.fillText('Align', 40, 80); const aw = x.measureText('Align').width; x.fillStyle = '#fff'; x.fillText('Fit', 40+aw, 80);
+  const gl = x.createLinearGradient(0,0,W*.64,0); gl.addColorStop(0,'rgba(5,5,5,.92)'); gl.addColorStop(.55,'rgba(5,5,5,.55)'); gl.addColorStop(1,'rgba(5,5,5,0)');
+  x.fillStyle = gl; x.fillRect(0,0,W*.64,H);
+  const gv = x.createLinearGradient(0,H*.78,0,H); gv.addColorStop(0,'rgba(5,5,5,0)'); gv.addColorStop(1,'rgba(5,5,5,.6)'); x.fillStyle = gv; x.fillRect(0,H*.78,W,H*.22);
+  // Esquinas de visor, como en la app
+  x.strokeStyle = '#00FF41'; x.lineWidth = 7; x.shadowColor = '#00FF41'; x.shadowBlur = 16; x.lineCap = 'square';
+  const m = 34, L = 96;
+  for(const [cx, cy, sx, sy] of [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]]){ x.beginPath(); x.moveTo(cx, cy + sy*L); x.lineTo(cx, cy); x.lineTo(cx + sx*L, cy); x.stroke(); }
+  x.shadowBlur = 0;
+  const MONO = '"Share Tech Mono", monospace', SANS = '"DM Sans", system-ui, sans-serif';
   const s = S.stats.lastSession || {reps:0, cal:0, active:0, name:''};
-  const cells = [[String(s.reps), 'REPS'], [String(s.cal), 'KCAL'], [fmtT(s.active), 'ACTIVO']];
-  cells.forEach((cc, i) => {
-    const cx = 40 + i*(W-80)/3;
-    x.fillStyle = i === 1 ? '#FF6B00' : '#00FF41'; x.font = '64px "Share Tech Mono", monospace'; x.fillText(cc[0], cx, H-110);
-    x.fillStyle = 'rgba(255,255,255,.6)'; x.font = '20px "Share Tech Mono", monospace'; x.fillText(cc[1], cx, H-76);
+  const TOP = H*.235, BOT = H*.765, X = Math.round(W*.059);
+  // Marca
+  x.textBaseline = 'top'; x.fillStyle = '#00FF41'; x.fillRect(X, TOP, 8, 44);
+  x.font = '46px ' + MONO; x.fillStyle = '#00FF41'; x.fillText('Align', X+24, TOP-2); const aw = x.measureText('Align').width; x.fillStyle = '#fff'; x.fillText('Fit', X+24+aw, TOP-2);
+  x.font = '600 30px ' + SANS; x.fillStyle = 'rgba(255,255,255,.78)'; x.fillText(s.name || '', X+24, TOP+56);
+  // Cifra protagonista: repeticiones (o segundos si fue solo sostener)
+  const holdOnly = !s.reps && s.hold, hero = String(holdOnly ? s.hold : (s.reps || 0));
+  x.textBaseline = 'alphabetic'; x.font = '210px ' + MONO; x.fillStyle = '#00FF41'; x.shadowColor = 'rgba(0,255,65,.6)'; x.shadowBlur = 40;
+  const heroY = BOT - 236; x.fillText(hero, X-6, heroY); x.shadowBlur = 0;
+  const hw = x.measureText(hero).width; x.font = '40px ' + MONO; x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText(holdOnly ? 'SEG' : 'REPS', X + hw + 16, heroY - 8);
+  // Cuatro datos en rejilla 2x2
+  const items = [['KCAL', String(s.cal || 0), '#FF6B00'], ['ACTIVO', fmtT(s.active || 0), '#fff'], ['MEJOR RACHA', String(s.combo || 0), '#fff'], ['RACHA', (S.stats.streak || 0) + ' d', '#fff']];
+  const colX = [X, X + Math.round(W*.27)], rowY = [BOT-140, BOT-28];
+  items.forEach((it, i) => {
+    const px = colX[i%2], py = rowY[Math.floor(i/2)];
+    x.font = '60px ' + MONO; x.fillStyle = it[2]; x.fillText(it[1], px, py);
+    x.font = '24px ' + MONO; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText(it[0], px, py + 32);
   });
-  x.fillStyle = '#fff'; x.font = '600 26px "DM Sans", sans-serif'; x.fillText(s.name || '', 40, H-170);
+  x.restore();
 }
 function capturePhoto(){
   let n = 3; const cd = document.getElementById('pb-cd'); cd.textContent = n; beep(660,.1);
